@@ -69,11 +69,8 @@ export class AppComponent implements OnInit{
     function onend(e) {
       var img;
       // do whatever with the frames
-      // console.log('in on end, e is ', e, ', array.length is ', array.length, array)
       const container = document.getElementsByClassName('frame-container')[0]
-      const paneContainer = document.getElementsByClassName('preview-pane-container')[0]
-      // const preview = 
-      console.log('container is ', container.clientWidth, container.clientWidth/array.length)
+      const paneContainer = document.getElementsByClassName('preview-pane-container')[0];
       for (var i = 0; i < array.length; i++) {
         img = new Image();
         img.width = container.clientWidth/array.length*2
@@ -82,10 +79,7 @@ export class AppComponent implements OnInit{
         img.src = URL.createObjectURL(array[i]);
         container.appendChild(img);
         img.addEventListener('mouseover', function(){
-          // array = [];
           paneContainer.innerHTML = '';
-          console.log('hover, this is', this, 'paneContainer is ', paneContainer)
-          // pane.src= URL.createObjectURL(this.src)
           ctx.drawImage(this, 0, 0);
           canvas.toBlob(saveFrame, 'image/jpeg');
 
@@ -96,7 +90,10 @@ export class AppComponent implements OnInit{
           paneImage.src = URL.createObjectURL(array[array.length-1]);
           paneContainer.appendChild(paneImage);
           array.shift()
-          console.log(array.length)
+        })
+        img.addEventListener('mousedown', function(){
+          console.log('image clicked', this)
+          this.setAttribute("style", "border: 2px solid blue")
         })
       }
       // we don't need the video's objectURL anymore
@@ -115,33 +112,15 @@ export class AppComponent implements OnInit{
   }
   mouseMove(e) {
     var rect = this.boundingCanvas.getBoundingClientRect();
-    // let el = e.currentTarget;
-    // console.log('a',e)
-    // console.log(e.pageX)
-    // console.log('z', e.offsetX)
-    // console.log(this.rect.startX)
-    // console.log(this)
     if (this.drag) {
-      // console.log(e, e.pageX - e.offsetX, this.rect.startX)
       this.rect.w = (e.clientX - rect.left) - this.rect.startX;
       this.rect.h = (e.clientY - rect.top) - this.rect.startY ;
       this.ctx.clearRect(0,0,this.boundingCanvas.width,this.boundingCanvas.height);
-      // console.log(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
       this.draw();
     }
   }
   mouseDown(e) {
-    // console.log(e.pageX - e.offsetX)
-    // console.log(e.pageY - e.offsetY)
-    // console.log('mousedown', e.pageX - e.offsetX);
-    // console.log(this.rect.startX)
-    // console.log(this.rect.startY)
-    // console.log(this.boundingCanvas)
-
     var rect = this.boundingCanvas.getBoundingClientRect();
-
-    // this.rect.startX = e.pageX - this.boundingCanvas.offsetX;
-    // this.rect.startY = e.pageY - e.offsetY;
 
     this.rect.startX = e.clientX - rect.left;
     this.rect.startY = e.clientY - rect.top;
@@ -149,8 +128,6 @@ export class AppComponent implements OnInit{
     console.log(this.rect.startX)
     console.log(this.rect.startY)
     this.drag = true;
-    // console.log(this.rect.startX)
-      // console.log(this.rect.startY)
   }
   getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
@@ -163,13 +140,10 @@ export class AppComponent implements OnInit{
     this.drag = false;
   }
   boundingCanvasInit(){
-    console.log('in bounding init');
     this.boundingCanvas =  document.getElementById('bounding-canvas') as HTMLCanvasElement;
     this.ctx = this.boundingCanvas.getContext('2d');
   }
   draw(){
-    // console.log('draw?', this.rect.startX, this.rect.startY, this.rect.w, this.rect.h);
-    // console.log(this)
-    this.ctx.fillRect(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h);
+    this.ctx.strokeRect(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h);
   }
 }
