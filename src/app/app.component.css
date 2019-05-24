@@ -1,0 +1,17 @@
+.frame-container{
+    height: 200px;
+    width: 80vw;
+    border: 1px solid blue;
+}
+.preview-pane-container{
+    height: 600px;
+    width: 80vw;
+    border: 1px solid lightgrey;
+}
+.preview-pane{
+    height: 100%;
+    width: 100%;
+}
+.bounding-canvas{
+    border: 1px solid purple;
+}
