@@ -1,17 +1,35 @@
+.wrapper{
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+.main-window{
+    position: relative;
+    height: 1250px;
+    width: 2000px;
+}
 .frame-container{
-    height: 200px;
-    width: 80vw;
+    height: 400px;
+    width: 2000px;
     border: 1px solid blue;
 }
 .preview-pane-container{
-    height: 600px;
-    width: 80vw;
+    height: 1250px;
+    width: 2000px;
     border: 1px solid lightgrey;
 }
 .preview-pane{
     height: 100%;
     width: 100%;
 }
-.bounding-canvas{
+#bounding-canvas{
+    position: absolute;
     border: 1px solid purple;
+    top: 0px;
+    height: 1250px;
+    width: 2000px;
+    cursor: crosshair;
 }

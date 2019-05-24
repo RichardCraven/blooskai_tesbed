@@ -1,15 +1,13 @@
-import { Component, ViewChild, ElementRef, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, AfterViewInit{
-  @ViewChild('bounding-canvas') boundingCanvas: ElementRef;
-  private context: CanvasRenderingContext2D;
+export class AppComponent implements OnInit{
   title = 'blooskai-testbed';
-  // boundingCanvas: HTMLCanvasElement;
+  boundingCanvas: HTMLCanvasElement;
   ctx: any;
   rect = {
     startX : undefined,
@@ -28,9 +26,7 @@ export class AppComponent implements OnInit, AfterViewInit{
     console.log(el)
     this.boundingCanvasInit();
   }
-  ngAfterViewInit(){
-    this.ctx = (this.boundingCanvas.nativeElement as HTMLCanvasElement).getContext('2d');
-  }
+
   extractFrames(source) {
     console.log('THIS IS ', this, 'source is ', source.target)
     const self = source.target;
@@ -118,6 +114,7 @@ export class AppComponent implements OnInit, AfterViewInit{
     video.play();
   }
   mouseMove(e) {
+    var rect = this.boundingCanvas.getBoundingClientRect();
     // let el = e.currentTarget;
     // console.log('a',e)
     // console.log(e.pageX)
@@ -126,36 +123,49 @@ export class AppComponent implements OnInit, AfterViewInit{
     // console.log(this)
     if (this.drag) {
       // console.log(e, e.pageX - e.offsetX, this.rect.startX)
-      this.rect.w = (e.pageX - e.offsetX) - this.rect.startX;
-      this.rect.h = (e.pageY - e.offsetY) - this.rect.startY ;
-      this.ctx.clearRect(0,0,(this.boundingCanvas.nativeElement as HTMLCanvasElement).width,(this.boundingCanvas.nativeElement as HTMLCanvasElement).height);
+      this.rect.w = (e.clientX - rect.left) - this.rect.startX;
+      this.rect.h = (e.clientY - rect.top) - this.rect.startY ;
+      this.ctx.clearRect(0,0,this.boundingCanvas.width,this.boundingCanvas.height);
       // console.log(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h)
       this.draw();
     }
   }
   mouseDown(e) {
-    console.log(e.pageX - e.offsetX)
-    console.log(e.pageY - e.offsetY)
+    // console.log(e.pageX - e.offsetX)
+    // console.log(e.pageY - e.offsetY)
     // console.log('mousedown', e.pageX - e.offsetX);
-    console.log('yoooo', (this.boundingCanvas.nativeElement as HTMLCanvasElement))
-    console.log(this.rect.startX)
-    console.log(this.rect.startY)
-    // console.log(this.boundingCanvas.attribute)
-    this.rect.startX = e.pageX - (this.boundingCanvas.nativeElement as HTMLCanvasElement).offsetX;
-    this.rect.startY = e.pageY - e.offsetY;
     // console.log(this.rect.startX)
     // console.log(this.rect.startY)
+    // console.log(this.boundingCanvas)
+
+    var rect = this.boundingCanvas.getBoundingClientRect();
+
+    // this.rect.startX = e.pageX - this.boundingCanvas.offsetX;
+    // this.rect.startY = e.pageY - e.offsetY;
+
+    this.rect.startX = e.clientX - rect.left;
+    this.rect.startY = e.clientY - rect.top;
+
+    console.log(this.rect.startX)
+    console.log(this.rect.startY)
     this.drag = true;
     // console.log(this.rect.startX)
       // console.log(this.rect.startY)
+  }
+  getMousePos(canvas, evt) {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
   }
   mouseUp() {
     this.drag = false;
   }
   boundingCanvasInit(){
     console.log('in bounding init');
-    // this.boundingCanvas.nativeElement =  document.getElementById('bounding-canvas') as HTMLCanvasElement;
-    // this.ctx = this.boundingCanvas.getContext('2d');
+    this.boundingCanvas =  document.getElementById('bounding-canvas') as HTMLCanvasElement;
+    this.ctx = this.boundingCanvas.getContext('2d');
   }
   draw(){
     // console.log('draw?', this.rect.startX, this.rect.startY, this.rect.w, this.rect.h);

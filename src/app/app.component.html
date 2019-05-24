@@ -1,8 +1,11 @@
-<input (change)="extractFrames($event)" type="file" accept="video/*" />
-<p id="progress"></p>
-<div class="preview-pane-container">
-    <!-- <img src="" alt="" class="preview-pane"> -->
+<div class="wrapper">
+  <input (change)="extractFrames($event)" type="file" accept="video/*" />
+  <p id="progress"></p>
+  <div class="main-window">
+    <div class="preview-pane-container"></div>
+    <canvas (mousedown)="mouseDown($event)" (mouseup)="mouseUp($event)" (mousemove)="mouseMove($event)" id="bounding-canvas" width="2000" height="1000"></canvas>
+  </div>
+      <!-- <img src="" alt="" class="preview-pane"> -->
+  <div class="frame-container"></div>
 </div>
-<div class="frame-container"></div>
-<canvas (mousedown)="mouseDown($event)" (mouseup)="mouseUp($event)" (mousemove)="mouseMove($event)" id="bounding-canvas" width="500" height="500"></canvas>
 
