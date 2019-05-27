@@ -8,6 +8,14 @@ import { Component, OnInit } from '@angular/core';
 export class AppComponent implements OnInit{
   title = 'blooskai-testbed';
   boundingCanvas: HTMLCanvasElement;
+  readyToCrop: boolean = false;
+  imgObj: any;
+  loadTimer: any;
+  paneContainer: any;
+  thumbnailContainer: any;
+  selectedFrameSrc: any;
+  selectMode: boolean = false;
+  cropping: boolean = false;
   ctx: any;
   rect = {
     startX : undefined,
@@ -25,10 +33,13 @@ export class AppComponent implements OnInit{
     const el = document.querySelector('input')
     console.log(el)
     this.boundingCanvasInit();
+    this.paneContainer = document.getElementsByClassName('preview-pane-container')[0];
+    this.thumbnailContainer = document.getElementsByClassName('captured-thumbnail')[0];
   }
 
   extractFrames(source) {
     console.log('THIS IS ', this, 'source is ', source.target)
+    const that = this;
     const self = source.target;
     var video = document.createElement('video');
     video.src = URL.createObjectURL(self.files[0]);
@@ -70,7 +81,7 @@ export class AppComponent implements OnInit{
       var img;
       // do whatever with the frames
       const container = document.getElementsByClassName('frame-container')[0]
-      const paneContainer = document.getElementsByClassName('preview-pane-container')[0];
+      // const paneContainer = document.getElementsByClassName('preview-pane-container')[0];
       for (var i = 0; i < array.length; i++) {
         img = new Image();
         img.width = container.clientWidth/array.length*2
@@ -79,20 +90,22 @@ export class AppComponent implements OnInit{
         img.src = URL.createObjectURL(array[i]);
         container.appendChild(img);
         img.addEventListener('mouseover', function(){
-          paneContainer.innerHTML = '';
+          if(!that.selectMode) return;
+          that.paneContainer.innerHTML = '';
           ctx.drawImage(this, 0, 0);
           canvas.toBlob(saveFrame, 'image/jpeg');
 
           let paneImage = new Image();
-          paneImage.width = paneContainer.clientWidth
-          paneImage.height = paneContainer.clientHeight
+          paneImage.width = that.paneContainer.clientWidth
+          paneImage.height = that.paneContainer.clientHeight
           paneImage.onload = revokeURL;
           paneImage.src = URL.createObjectURL(array[array.length-1]);
-          paneContainer.appendChild(paneImage);
+          that.selectedFrameSrc = URL.createObjectURL(array[array.length-1])
+          that.paneContainer.appendChild(paneImage);
           array.shift()
         })
         img.addEventListener('mousedown', function(){
-          console.log('image clicked', this)
+          if(!that.selectMode) return;
           this.setAttribute("style", "border: 2px solid blue")
         })
       }
@@ -128,6 +141,7 @@ export class AppComponent implements OnInit{
     console.log(this.rect.startX)
     console.log(this.rect.startY)
     this.drag = true;
+    this.cropping = true;
   }
   getMousePos(canvas, evt) {
     var rect = canvas.getBoundingClientRect();
@@ -138,6 +152,12 @@ export class AppComponent implements OnInit{
   }
   mouseUp() {
     this.drag = false;
+    if(this.cropping){
+      console.log('SHOULD WORKJ');
+      
+      this.readyToCrop = true;
+      this.selectMode = false;
+    }
   }
   boundingCanvasInit(){
     this.boundingCanvas =  document.getElementById('bounding-canvas') as HTMLCanvasElement;
@@ -146,4 +166,85 @@ export class AppComponent implements OnInit{
   draw(){
     this.ctx.strokeRect(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h);
   }
+  initiateCrop(src){
+    console.log('kkk',this.selectedFrameSrc, this.selectMode, this.readyToCrop)
+    if(this.selectMode || !this.readyToCrop ) return
+    console.log('initiating crop');
+    this.imgObj = new Image();
+    this.imgObj.src = this.selectedFrameSrc;
+    const that = this;
+    this.imgObj.onload = function(){
+      that.onPreloadComplete()
+    };
+    function onImgLoaded() {
+      console.log('image [this] is ', that)
+      if (that.loadTimer != null) clearTimeout(that.loadTimer);
+      if (!that.imgObj.complete) {
+        that.loadTimer = setTimeout(function() {
+          onImgLoaded();
+        }, 3);
+      } else {
+        that.onPreloadComplete();
+      }
+    }
+  }
+  onPreloadComplete(){
+    console.log('PRELOAD COMPLETE, imgObj is ', this.imgObj);
+    const thumbnail = new Image();
+    const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
+    const ctx = canvas.getContext('2d');
+    var newImgSrc = this.getImagePortion(this.imgObj, Math.abs(this.rect.w), Math.abs(this.rect.h), this.rect.startX, this.rect.startY, 1);
+    // console.log(newImgSrc)
+    thumbnail.src = newImgSrc;
+    console.log(thumbnail)
+    document.getElementsByClassName('top-window')[0].appendChild(thumbnail)
+    ctx.drawImage(this.imgObj, 0, 0)
+    // const canvas = this.
+    // var canvas = document.createElement('canvas');
+    // var ctx = canvas.getContext('2d');
+    // canvas.width = 300;
+    // canvas.height = 300;
+
+    // ctx.drawImage(this.imgObj, 0, 0)
+
+
+
+    return
+    this.thumbnailContainer.innerHTML = '';
+    //call the methods that will create a 64-bit version of thumbnail here.
+    var newImgSrc = this.getImagePortion(this.imgObj, this.rect.w, this.rect.h, this.rect.startX, this.rect.startY, 2);
+
+    // let thumbnail = new Image();
+          // thumbnail.width = that.paneContainer.clientWidth
+          // thumbnail.height = that.paneContainer.clientHeight
+          // thumbnail.onload = revokeURL;
+          thumbnail.src = URL.createObjectURL(newImgSrc);
+    //place image in appropriate div
+    // const thumbnail = <HTMLImageElement>document.getElementById("thumbnail");
+
+    this.thumbnailContainer.appendChild(thumbnail);
+    // console.log('newImg = ', newImg)
+    // thumbnail.src = newImg;
+  }
+  getImagePortion(imgObj, newWidth, newHeight, startX, startY, ratio){
+    console.log('new w and h : ', newWidth, newHeight)
+    /* the parameters: - the image element - the new width - the new height - the x point we start taking pixels - the y point we start taking pixels - the ratio */
+    //set up canvas for thumbnail
+    var tnCanvas = document.createElement('canvas');
+    var tnCanvasContext = tnCanvas.getContext('2d');
+    tnCanvas.width = newWidth; tnCanvas.height = newHeight;
+    
+    /* use the sourceCanvas to duplicate the entire image. This step was crucial for iOS4 and under devices. Follow the link at the end of this post to see what happens when you don’t do this */
+    var bufferCanvas = document.createElement('canvas');
+    var bufferContext = bufferCanvas.getContext('2d');
+    console.log('imgObj w and h', imgObj.width, imgObj.height)
+    bufferCanvas.width = imgObj.width;
+    bufferCanvas.height = imgObj.height;
+    bufferContext.drawImage(imgObj, 0, 0);
+    
+    /* now we use the drawImage method to take the pixels from our bufferCanvas and draw them into our thumbnail canvas */
+    tnCanvasContext.drawImage(bufferCanvas, startX,startY,newWidth * ratio, newHeight * ratio,0,0,300,300);
+    return tnCanvas.toDataURL();
+   }
+  
 }
