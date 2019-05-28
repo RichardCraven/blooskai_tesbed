@@ -1,0 +1,32 @@
+
+button{
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.captured-thumbnail{
+    margin-left: 50px;
+    height: 300px;
+    width: 300px;
+    border: 1px dashed lightgray;
+}
+.captured-thumbnail img{
+    height: 100%;
+    width: 100%;
+}
+.top-window{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.indicator{
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+.red{
+    background-color: red;
+}
+.green{
+    background-color: green;
+}

@@ -1,19 +1,7 @@
 <div class="wrapper">
-  <div class="top-window">
-    <div [ngClass]="selectMode ? 'green' : 'red'" class="indicator"></div>
-    <input (change)="extractFrames($event)" type="file" accept="video/*" />
-    <button (click)="selectMode = !selectMode">Select Frames</button>
-    <button (click)="initiateCrop()">CROP</button>
-    <div class="captured-thumbnail">
-      <!-- <img id='thumbnail' src="" alt=""> -->
-      <canvas id="thumbnail-canvas" width="300" height="300"></canvas>
-    </div>
-    <p id="progress"></p>
-  </div>
-  <div class="main-window">
-    <div class="preview-pane-container"></div>
-    <canvas (mousedown)="mouseDown($event)" (mouseup)="mouseUp($event)" (mousemove)="mouseMove($event)" id="bounding-canvas" width="1000" height="625"></canvas>
-  </div>
+  
+  <app-top-panel></app-top-panel>
+  <app-mid-panel></app-mid-panel>
       <!-- <img src="" alt="" class="preview-pane"> -->
   <div class="frame-container"></div>
 </div>

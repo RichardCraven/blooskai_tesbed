@@ -1,0 +1,38 @@
+.wrapper{
+    /* height: 100vh; */
+    /* width: 100vw; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+}
+.main-window, .copy-window{
+    position: relative;
+    height: 625px;
+    width: 625px;
+}
+.preview-pane-container{
+    height: 625px;
+    width: 625px;
+    border: 1px solid lightgrey;
+}
+.preview-pane{
+    height: 100%;
+    width: 100%;
+}
+#bounding-canvas{
+    position: absolute;
+    border: 1px solid purple;
+    top: 0px;
+    height: 625px;
+    width: 625px;
+    cursor: crosshair;
+}
+#copy-canvas{
+    position: absolute;
+    border: 1px dashed red;
+    top: 0px;
+    height: 625px;
+    width: 625px;
+    cursor: crosshair;
+}
