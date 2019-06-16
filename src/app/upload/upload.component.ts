@@ -1,13 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { DataTransferService } from '../services/data-transfer.service'
 import { Observable, Subscription } from 'rxjs';
+import { DataTransferService } from '../services/data-transfer.service'
 
 @Component({
-  selector: 'app-top-panel',
-  templateUrl: './top-panel.component.html',
-  styleUrls: ['./top-panel.component.css']
+  selector: 'media-upload',
+  template: `
+  <kendo-upload
+    [saveUrl]="uploadSaveUrl"
+    [removeUrl]="uploadRemoveUrl"
+    (select)="onSelect($event)">
+    <kendo-upload-messages select="Upload media"></kendo-upload-messages>
+  </kendo-upload>
+  `
 })
-export class TopPanelComponent implements OnInit {
+export class UploadComponent implements OnInit{
   imgObj: any;
   subscription: Subscription;
   copyCanvas: HTMLCanvasElement;
@@ -22,75 +28,29 @@ export class TopPanelComponent implements OnInit {
     endY: undefined,
     h : 0,
     w : 0
-  };
-  constructor(private dataTransfer: DataTransferService) { }
-// the grass isnt always greener, the brown spots are just in different places
-  ngOnInit() {
+  }
+  constructor(public dataTransfer: DataTransferService) { }
+  ngOnInit(){
     this.paneContainer = document.getElementsByClassName('preview-pane-container')[0];
+    console.log('yeha ', this.dataTransfer)
     this.subscription = this.dataTransfer.getData().subscribe(res => {
-      if(res.destination !== 'top') return;
-      if(typeof res.data !== 'string'){
-        this.rect = res.data;
-        this.selectMode = false;
+      if(res.destination !== 'mid') return;
+      console.log('mid receiving data with type ', typeof res.data);
+      res.destination === 'mid' && console.log('receiving data, data is ', res.data)
+      if(typeof res.data === 'string'){
+        this.selectMode = !this.selectMode;
       }
     })
-    this.copyCanvas = <HTMLCanvasElement> document.getElementById('copy-canvas');
-    this.copyCtx = this.copyCanvas.getContext('2d');
   }
-  selectModeToggle(){
-    this.selectMode = !this.selectMode;
-    if(this.selectMode) this.dataTransfer.passData('mid', 'select')
-  }
-  initiateCrop(){
-    console.log('initiating crop');
-    this.imgObj = new Image(625, 625);
-    this.imgObj.src = this.selectedFrameSrc
-    const that = this;
-    this.imgObj.onload = function(){
-      that.crop()
-    };
-  }
-  crop(){
-    const thumbnail = new Image(625, 625);
-
-    const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
-    const ctx = canvas.getContext('2d');
-
-    var newImgSrc = this.getImagePortion(this.imgObj, this.rect.w, this.rect.h, this.rect.startX, this.rect.startY, 1);
-    thumbnail.src = newImgSrc;
-    ctx.drawImage(thumbnail, 0, 0);
-  }
-  getImagePortion(imgObj, newWidth, newHeight, startX, startY, ratio){
-    //set up canvas for thumbnail
-    var tnCanvas = document.createElement('canvas');
-    var tnCanvasContext = tnCanvas.getContext('2d');
-    tnCanvas.width = newWidth; 
-    tnCanvas.height = newHeight;
-    
-    /* use the sourceCanvas to duplicate the entire image. This step was crucial for iOS4 and under devices. Follow the link at the end of this post to see what happens when you don’t do this */
-    var bufferCanvas = document.createElement('canvas');
-    var bufferContext = bufferCanvas.getContext('2d');
-    console.log(imgObj.width, ' <-- should be 625', imgObj.height)
-    bufferCanvas.width = imgObj.width;
-    bufferCanvas.height = imgObj.height;
-    bufferContext.drawImage(imgObj, 0, 0, 625, 625);
-    
-
-    const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
-    this.copyCtx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
-    tnCanvasContext.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
-
-    return tnCanvas.toDataURL();
+  onSelect(e){
+    console.log('yooo, insite', typeof e.files[0].rawFile, e.files[0].rawFile);
+    this.extractFrames(e)
   }
   extractFrames(source) {
-    console.log('in extract frames');
-    
     const that = this;
-    const self = source.target;
     var video = document.createElement('video');
-    video.src = URL.createObjectURL(self.files[0]);
+    // video.src = URL.createObjectURL(self.files[0]);
+    video.src = URL.createObjectURL(source.files[0].rawFile);
     var array = [];
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
@@ -99,6 +59,8 @@ export class TopPanelComponent implements OnInit {
     function initCanvas(e) {
       canvas.width = this.videoWidth;
       canvas.height = this.videoHeight;
+
+      
     }
 
     function drawFrame(e) {
@@ -117,8 +79,6 @@ export class TopPanelComponent implements OnInit {
     }
 
     function saveFrame(blob) {
-      console.log('save');
-      
       array.push(blob);
     }
 
@@ -129,7 +89,6 @@ export class TopPanelComponent implements OnInit {
     
     function onend(e) {
       const container = document.getElementsByClassName('frame-container')[0];
-      console.log(container)
       for (var i = 0; i < array.length; i++) {
         let img = new Image();
         img.width = container.clientWidth/array.length*2
@@ -138,7 +97,9 @@ export class TopPanelComponent implements OnInit {
         img.src = URL.createObjectURL(array[i]);
         container.appendChild(img);
         img.addEventListener('mouseover', function(){
+          
           if(!that.selectMode) return;
+          console.log('inside......!!!');
           that.paneContainer.innerHTML = '';
           ctx.drawImage(this, 0, 0);
           canvas.toBlob(saveFrame, 'image/jpeg');
@@ -162,7 +123,7 @@ export class TopPanelComponent implements OnInit {
         })
       }
       // we don't need the video's objectURL anymore
-      URL.revokeObjectURL(self.src);
+      URL.revokeObjectURL(e.src);
       array = [];
     };
     video.muted = true;

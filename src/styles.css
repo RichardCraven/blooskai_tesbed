@@ -1,1 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Roboto:100,400&display=swap');
+body{
+    margin: 0;
+    height: 100%;
+    background: aliceblue;
+}
+.card{
+    padding: 30px;
+}

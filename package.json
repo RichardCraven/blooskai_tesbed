@@ -21,9 +21,14 @@
     "@angular/platform-browser-dynamic": "^6.1.0",
     "@angular/router": "^6.1.0",
     "@cloudinary/angular-5.x": "^1.0.2",
+    "@progress/kendo-angular-buttons": "^4.4.1",
+    "@progress/kendo-angular-l10n": "^1.1.0",
+    "@progress/kendo-angular-upload": "^4.3.2",
+    "@progress/kendo-theme-default": "latest",
     "cloudinary-core": "^2.6.3",
     "core-js": "^2.5.4",
     "rxjs": "~6.2.0",
+    "rxjs-compat": "^6.0.0",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {
