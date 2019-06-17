@@ -32,8 +32,14 @@
     cursor: pointer;
 }
 .dashboard-page-button{
-    background-image: url('../../assets/dashboardButton.png');
+    background-image: url('../../assets/dashboardButton_unselected.png');
+}
+.dashboard-page-button.active{
+    background-image: url('../../assets/dashboardButton_selected.png');
 }
 .upload-page-button{
-    background-image: url('../../assets/uploadButton.png');
+    background-image: url('../../assets/uploadButton_unselected.png');
+}
+.upload-page-button.active{
+    background-image: url('../../assets/uploadButton_selected.png');
 }

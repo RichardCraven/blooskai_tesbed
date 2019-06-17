@@ -1,9 +1,57 @@
 <div class="uploads-page-wrapper">
     <div class="uploads-page-card-container">
-        <table class="card uploads-page-card">
+        <div *ngIf="!uploading" class="card uploads-page-card">
           <div class="header">
             <div class="title">Videos Uploaded</div>
           </div>
-        </table>
+          <div class="table-wrapper">
+            <div class="row header-row">
+              <div class="cell">Name</div>
+              <div class="cell">Type</div>
+              <div class="cell">Objects Tagged</div>
+              <div class="cell">Video #</div>
+              <div class="cell">Last Edited</div>
+              <div class="cell"></div>
+            </div>
+            <div *ngFor="let item of content" class="row">
+                <div class="cell">{{item.name}}</div>
+                <div class="cell">{{item.type}}</div>
+                <div class="cell">{{item.objectsTagged}}</div>
+                <div class="cell">{{item.id}}</div>
+                <div class="cell">{{item.lastEdited}}</div>
+                <div class="cell">
+                  <button>Edit Tracking</button>
+                </div>
+            </div>
+          </div>
+          <!-- <button kendoButton [primary]="true" >
+              <input (change)="extractFrames($event)" type="file" accept="video/*" />
+          </button> -->
+          <button  kendoButton class='upload-new'>
+              <!-- (click)="beginUpload()"  -->
+            <label for="my-input-element-1" class="input-wrapper">
+                <span>Upload New</span>
+                <input type="file" accept="video/*" id="my-input-element-1" style="display:none" (change)="waitThenExtract($event)"/>
+            </label>
+            <!-- <input (change)="extractFrames($event)" type="file" accept="video/*" > -->
+          </button>
+        </div>
+        <div *ngIf="uploading" class="card uploader-card">
+          <div class="progress-container">
+            <p id="progress"></p>
+          </div>
+          <div class="res-container">
+            <button (click)="resolution1080 = true">1080</button>
+            <button (click)="resolution1080 = false">720</button>
+          </div>
+          <div class="super-container">
+            <div class="canvas-container preview-pane-container" [ngClass]="resolution1080 ? 'res1080' : 'res720' "></div>
+          </div>
+          <div class="framestrip-container">
+            <div class="canvas-container frame-container"></div>
+            <div class="audiostrip"></div>
+          </div>
+          <button (click)="uploading = false" class="cancel-button">Cancel</button>
+        </div>
     </div>
 </div>

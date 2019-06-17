@@ -2,6 +2,6 @@
   <!-- <div class="welcome">
     Welcome
   </div> -->
-  <button routerLink="/dashboard" class='dashboard-page-button nav-button'></button>
-  <button routerLink="/upload" class='upload-page-button nav-button'></button>
+  <button (click)="selectedRoute = 'dashboard' " routerLink="/dashboard" class='dashboard-page-button nav-button' routerLinkActive="active"></button>
+  <button (click)="selectedRoute = 'uploadPage' " routerLink="/upload" class='upload-page-button nav-button' routerLinkActive="active"></button>
 </div>

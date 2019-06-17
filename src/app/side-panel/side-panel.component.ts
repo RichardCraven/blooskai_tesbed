@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./side-panel.component.css']
 })
 export class SidePanelComponent implements OnInit {
-
+  selectedRoute = 'dashboard';
   constructor() { }
 
   ngOnInit() {

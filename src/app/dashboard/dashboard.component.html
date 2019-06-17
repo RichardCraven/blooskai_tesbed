@@ -1,28 +1,49 @@
 <div class="dashboard-wrapper">
   <div class="top-container">
     <div class="recent-video-uploads-container">
-        <table class="card recent-video-uploads-card">
+        <div class="card recent-video-uploads-card">
           <div class="header">
             <div class="title">Recent Video Uploads</div>
             <button>See All</button>
           </div>
-          
-        </table>
+          <div class="table-wrapper">
+              <div class="row header-row">
+                  <div class="cell">Name</div>
+                  <div class="cell">Type</div>
+                  <div class="cell">Objects Tagged</div>
+                  <div class="cell">Video #</div>
+                  <div class="cell">Last Edited</div>
+                <div class="cell"></div>
+              </div>
+              <div *ngFor="let item of content" class="row">
+                  <div class="cell">{{item.name}}</div>
+                  <div class="cell">{{item.type}}</div>
+                  <div class="cell">{{item.objectsTagged}}</div>
+                  <div class="cell">{{item.id}}</div>
+                  <div class="cell">{{item.lastEdited}}</div>
+                  <div class="cell">
+                    <button class="edit-tracking">Edit Tracking</button>
+                  </div>
+              </div>
+            </div>
+          </div>
     </div>
   </div>
   <div class="bottom-container">
     <div class="total-stats-container">
       <div class="card total-stats-card">
           <div class="header">
-              <div class="title">Total Stats</div>
-            </div>
+            <div class="title">Total Stats</div>
+          </div>
+          <div class="placeholder"></div>
       </div>
     </div>
     <div class="usage-container">
         <div class="card usage-card">
             <div class="header">
-                <div class="title">Usage</div>
-              </div>
+              <div class="title">Usage</div>
+            </div>
+            <div class="placeholder"></div>
         </div>
     </div>
   </div>
