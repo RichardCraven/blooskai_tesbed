@@ -8,3 +8,10 @@ body{
 .card{
     padding: 30px;
 }
+.cell{
+    font-size: 120%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+}

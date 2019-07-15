@@ -99,7 +99,7 @@ grid-template-columns: repeat(6, minmax(50px, 1fr));
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 150px;
+    min-height: 135px;
 }
 .header-row{
     border-bottom: 1px solid lightgrey;

@@ -13,6 +13,7 @@
 .uploads-page-card-container{
     height: 100%;
     width: 100%;
+    position: relative;
 }
 .card{
     background-color: white;
@@ -20,6 +21,7 @@
     height: 100%;
     width: 100%;
     box-sizing: border-box;
+    overflow: scroll;
 }
 
 .uploader-card{
@@ -53,11 +55,14 @@ button{
 }
 button.upload-new{
     width: 300px;
-    margin-top: 75px;
-    margin-left: 20px;
-    height: 120px;
+    margin-top: 0px;
+    margin-left: 0px;
+    position: absolute;
+    height: 90px;
     background-color: aliceblue;
     cursor: pointer;
+    right: 79px;
+    top: 25px;
 }
 .input-wrapper{
     cursor: pointer;
@@ -74,28 +79,42 @@ button.upload-new{
     display: grid;
     grid-template-columns: repeat(6, minmax(50px, 1fr));
 }
-.cell{
-    font-size: 175%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 150px;
-}
 .header-row{
     border-bottom: 1px solid lightgrey;
 }
 /* .cancel-button{
     
 } */
-.preview-pane-container.res720{
+.thumbnail-strip{
+    height: 1080px;
+    width: 300px;
+    border: 1px dotted lightgrey;
+}
+.canvas-container{
+    position: relative;
+}
+.preview-pane-container{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+.canvas-container.res720{
     height: 720px;
     width: 1280px;
     border: 1px dashed lightgrey;
 }
-.preview-pane-container.res1080{
-    height: 1080px;
+.canvas-container.res1080{
+    height: 1078px;
     width: 1920px;
     border: 1px dashed lightgrey;
+}
+#bounding-canvas{
+    position: absolute;
+    border: 1px solid purple;
+    top: 0px;
+    height: 1080px;
+    width: 1920px;
+    cursor: crosshair;
 }
 label input{
     background: transparent;
@@ -139,7 +158,14 @@ label input{
 }
 .progress-container{
     height: 80px;
-    width: 100px;
+    width: 400px;
+    border: 1px solid grey;
+    padding-left: 1px;
+}
+#progressBar{
+    height: 77px;
+    width: 0%;
+    background-color: aquamarine;
 }
 .super-container{
     height: 1082px;

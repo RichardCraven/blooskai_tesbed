@@ -7,7 +7,7 @@ import { Component, OnInit } from '@angular/core';
 })
 export class UploadPageComponent implements OnInit {
   content = [];
-  
+  progressBar: any;
   resolution1080 = true;
 
   uploading = false;
@@ -15,9 +15,34 @@ export class UploadPageComponent implements OnInit {
   imgObj: any;
   paneContainer: any;
   frameSelected = false;
+
+  setDimensions = {
+    height: 1080,
+    width: 1920
+  }
+
+  // Below are props from mid panel
+  boundingCanvas: HTMLCanvasElement;
+  ctx: any;
+  drag: boolean = false;
+  readyToCrop: boolean = false;
+  cropping: boolean = false;
+  selectMode: boolean = false;
+  loadTimer: any; 
+  thumbnailContainer: any;
+  rect = {
+    startX : null,
+    startY : null,
+    endX: null,
+    endY: null,
+    h : 0,
+    w : 0
+  };
+
   constructor() { }
 
   ngOnInit() {
+    
     const youtubeVids = [
       {
         name: "Jerry's Place",
@@ -82,10 +107,28 @@ export class UploadPageComponent implements OnInit {
   }
   beginUpload(){
     this.uploading = true;
+    
+    this.boundingCanvasInit();
+  }
+  boundingCanvasInit(){
+    this.boundingCanvas =  document.getElementById('hd-bounding-canvas') as HTMLCanvasElement;
+    this.ctx = this.boundingCanvas.getContext('2d');
+    console.log('initting bounding canvas as ', this.boundingCanvas)
+  }
+  setBoundingCanvasDimensions(height){
+    console.log('in set dimensions, height is ', height);
+    height === 720 ? this.setDimensions = {
+      height: 720,
+      width: 1280
+    } : this.setDimensions = {
+      height: 1080,
+      width: 1920
+    }
+    //to potentially manually reset the canvas dimensions
   }
   initiateCrop(){
     console.log('initiating crop');
-    this.imgObj = new Image(625, 625);
+    this.imgObj = new Image(this.setDimensions.height, this.setDimensions.width);
     this.imgObj.src = this.selectedFrameSrc
     const that = this;
     this.imgObj.onload = function(){
@@ -98,15 +141,18 @@ export class UploadPageComponent implements OnInit {
   waitThenExtract(source){
     this.uploading = true;
     const that = this;
+    setTimeout(function(){
+      that.progressBar = document.getElementById("progressBar"); 
+      console.log('PROGRESS', that.progressBar)
+    }, 0)
     setTimeout(function(){that.extractFrames(source)}, 500)
   }
   extractFrames(source) {
-    let bool = false;
-    console.log('in extract frames', this);
-    this.paneContainer = document.getElementsByClassName('preview-pane-container')[0];
-    console.log('opane container is ', this.paneContainer)
-    
     const that = this;
+   
+    let bool = false;
+    this.paneContainer = document.getElementsByClassName('preview-pane-container')[0];
+    
     const self = source.target;
     var video = document.createElement('video');
     video.src = URL.createObjectURL(self.files[0]);
@@ -114,7 +160,8 @@ export class UploadPageComponent implements OnInit {
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
     var pro = document.querySelector('#progress');
-
+    let progressBar = this.progressBar;
+    
     function initCanvas(e) {
       canvas.width = this.videoWidth;
       canvas.height = this.videoHeight;
@@ -130,34 +177,27 @@ export class UploadPageComponent implements OnInit {
       https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob#Polyfill
       */
       canvas.toBlob(saveFrame, 'image/jpeg');
-      pro.innerHTML = ((this.currentTime / this.duration) * 100).toFixed(2) + ' %';
+      let progress = ((this.currentTime / this.duration) * 100).toFixed(2)
+      pro.innerHTML = progress + ' %';
+      progressBar.style.width = progress + '%';
       // pro.innerHTML = this.duration + '____________' + this.currentTime;
       if (this.currentTime < this.duration) {
-        // console.log('cur',this.currentTime)
         this.play();
       }
       if(((this.currentTime / this.duration) * 100).toFixed(2) == '100.00' && !bool){
-        // console.log('INSIIIIDE', this, onend)
         bool = true;
         onend('e')
       }
     }
-
     function saveFrame(blob) {
-      console.log('save');
-      
       array.push(blob);
     }
-
     function revokeURL(e) {
-      // console.log('in revoke, e is ', e)
       URL.revokeObjectURL(this.src);
     }
-    
     function onend(e) {
       const audiostrip = document.getElementsByClassName('audiostrip')[0];
       audiostrip.classList.add("viewable")
-      console.log(audiostrip, audiostrip.classList)
       // const framesToRender = [];
       const num = Math.floor(array.length/8);
       const container = document.getElementsByClassName('frame-container')[0];
@@ -165,8 +205,6 @@ export class UploadPageComponent implements OnInit {
       let counter = 0;
       for (var i = 0; i < array.length; i++) {
         if(i % num !== 0){
-          // console.log('in');
-          
           continue
         }
         if(counter < 8){
@@ -179,7 +217,7 @@ export class UploadPageComponent implements OnInit {
         img.height = 150
         img.onload = revokeURL;
         // img.classList.add("border-top-red")
-        img.setAttribute("style", "border-top: 4px solid white")
+        // img.setAttribute("style", "border-top: 4px solid blue")
         // img.style = "border-top: 5px solid red"
         // img.border = '5px solid red'
         img.src = URL.createObjectURL(array[i]);
@@ -208,8 +246,8 @@ export class UploadPageComponent implements OnInit {
           if(!that.frameSelected){
             this.setAttribute("style", "border-top: 4px solid blue")
             that.frameSelected = true;
+            that.boundingCanvasInit();
           }
-          console.log('YOm this is ', this, 'that is ', that)
         })
       }
       // we don't need the video's objectURL anymore
@@ -226,5 +264,42 @@ export class UploadPageComponent implements OnInit {
     video.addEventListener('timeupdate', drawFrame, false);
     // video.addEventListener('ended', onend, false);
     video.play();
+  }
+  // boundingCanvasInit(){
+  //   this.boundingCanvas =  document.getElementById('bounding-canvas') as HTMLCanvasElement;
+  //   this.ctx = this.boundingCanvas.getContext('2d');
+  // }
+  mouseMove(e) {
+    if (this.drag) {
+      var rect = this.boundingCanvas.getBoundingClientRect();
+      this.rect.w = (e.clientX - rect.left) - this.rect.startX;
+      this.rect.h = (e.clientY - rect.top) - this.rect.startY ;
+      this.ctx.clearRect(0,0,this.boundingCanvas.width,this.boundingCanvas.height);
+      this.draw();
+    }
+  }
+  mouseDown(e) {
+    var rect = this.boundingCanvas.getBoundingClientRect();
+    this.rect.startX = e.clientX - rect.left;
+    this.rect.startY = e.clientY - rect.top;
+    this.drag = true;
+    this.cropping = true;
+  }
+  mouseUp(e) {
+    this.drag = false;
+    if(this.cropping){
+      var rect = this.boundingCanvas.getBoundingClientRect();
+      this.rect.endX = e.clientX - rect.left;
+      this.rect.endY = e.clientY - rect.top;
+      this.readyToCrop = true;
+      this.selectMode = false;
+      // this.dataTransfer.passData('top', this.rect)
+      this.selectMode = false;
+    }
+  }
+  draw(){
+    this.ctx.strokeStyle = "#FFFFFF"
+    this.ctx.lineWidth = 4;
+    this.ctx.strokeRect(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h);
   }
 }

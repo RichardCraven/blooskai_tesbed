@@ -3,6 +3,12 @@
         <div *ngIf="!uploading" class="card uploads-page-card">
           <div class="header">
             <div class="title">Videos Uploaded</div>
+            <button  kendoButton class='upload-new'>
+              <label for="my-input-element-1" class="input-wrapper">
+                  <span>Upload New</span>
+                  <input type="file" accept="video/*" id="my-input-element-1" style="display:none" (change)="waitThenExtract($event)"/>
+              </label>
+            </button>
           </div>
           <div class="table-wrapper">
             <div class="row header-row">
@@ -27,25 +33,25 @@
           <!-- <button kendoButton [primary]="true" >
               <input (change)="extractFrames($event)" type="file" accept="video/*" />
           </button> -->
-          <button  kendoButton class='upload-new'>
-              <!-- (click)="beginUpload()"  -->
-            <label for="my-input-element-1" class="input-wrapper">
-                <span>Upload New</span>
-                <input type="file" accept="video/*" id="my-input-element-1" style="display:none" (change)="waitThenExtract($event)"/>
-            </label>
-            <!-- <input (change)="extractFrames($event)" type="file" accept="video/*" > -->
-          </button>
+          <!-- <canvas (mousedown)="mouseDown($event)" (mouseup)="mouseUp($event)" (mousemove)="mouseMove($event)" id="hd-bounding-canvas" width="1920" height="1080"></canvas> -->
         </div>
-        <div *ngIf="uploading" class="card uploader-card">
-          <div class="progress-container">
+        <div *ngIf="uploading" class="card uploader-card"> 
+          <div class="progress-percentage-container">
             <p id="progress"></p>
           </div>
+          <div class="progress-container">
+            <div id='progressBar'></div>
+          </div>
           <div class="res-container">
-            <button (click)="resolution1080 = true">1080</button>
-            <button (click)="resolution1080 = false">720</button>
+            <button (click)="resolution1080 = true; setBoundingCanvasDimensions(1080)">1080</button>
+            <button (click)="resolution1080 = false; setBoundingCanvasDimensions(720)">720</button>
           </div>
           <div class="super-container">
-            <div class="canvas-container preview-pane-container" [ngClass]="resolution1080 ? 'res1080' : 'res720' "></div>
+            <div class="canvas-container" [ngClass]="resolution1080 ? 'res1080' : 'res720' ">
+                <div class="preview-pane-container"></div>
+                <canvas (mousedown)="mouseDown($event)" (mouseup)="mouseUp($event)" (mousemove)="mouseMove($event)" id="hd-bounding-canvas" width="1920" height="1080"></canvas>
+            </div>
+            <div class="thumbnail-strip"></div>
           </div>
           <div class="framestrip-container">
             <div class="canvas-container frame-container"></div>
