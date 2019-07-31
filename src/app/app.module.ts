@@ -15,6 +15,8 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { SidePanelComponent } from './side-panel/side-panel.component';
 import { SearchBarComponent } from './search-bar/search-bar.component';
 import { UploadPageComponent } from './upload-page/upload-page.component';
+import { ReactiveFormsModule } from '@angular/forms';
+
 
 const appRoutes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
@@ -41,6 +43,7 @@ const appRoutes: Routes = [
     UploadPageComponent
   ],
   imports: [
+    ReactiveFormsModule,
     BrowserModule,
     ButtonsModule,
     BrowserAnimationsModule,

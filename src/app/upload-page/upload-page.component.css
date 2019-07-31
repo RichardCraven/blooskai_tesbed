@@ -29,6 +29,16 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    position: relative;
+}
+.crop-button{
+    position: absolute;
+    height: 90px;
+    width: 171px;
+    left: 143px;
+    top: 189px;
+    /* background-color: rgb(201, 201, 201); */
+
 }
 .header{
     width: 100%;
@@ -49,9 +59,12 @@ button{
     font-weight: 100;
     font-family: 'Roboto', sans-serif;
     width: 100%;
-    height: 120px;
+    /* height: 120px; */
     font-weight: 300;
     cursor: pointer;
+}
+.res-container{
+    height: 77px;
 }
 button.upload-new{
     width: 300px;
@@ -108,7 +121,7 @@ button.upload-new{
     width: 1920px;
     border: 1px dashed lightgrey;
 }
-#bounding-canvas{
+#hd-bounding-canvas{
     position: absolute;
     border: 1px solid purple;
     top: 0px;
@@ -157,13 +170,16 @@ label input{
     background-color: aliceblue;
 }
 .progress-container{
-    height: 80px;
+    height: 40px;
     width: 400px;
     border: 1px solid grey;
     padding-left: 1px;
+    padding-left: 1px;
+    padding-right: 1px;
+    padding-top: 1px;
 }
 #progressBar{
-    height: 77px;
+    height: 38px;
     width: 0%;
     background-color: aquamarine;
 }

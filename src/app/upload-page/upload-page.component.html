@@ -3,6 +3,16 @@
         <div *ngIf="!uploading" class="card uploads-page-card">
           <div class="header">
             <div class="title">Videos Uploaded</div>
+            <!-- <form [formGroup] = "uploadForm" (ngSubmit)="onSubmit()">      
+                <div>
+                  <input type="file" name="profile" (change)="onFileSelect($event)" />
+                </div>
+                <div>
+                  <button  kendoButton class='upload-new' type="submit">
+                    <span>Upload New</span>
+                  </button>
+                </div>
+            </form> -->
             <button  kendoButton class='upload-new'>
               <label for="my-input-element-1" class="input-wrapper">
                   <span>Upload New</span>
@@ -35,7 +45,8 @@
           </button> -->
           <!-- <canvas (mousedown)="mouseDown($event)" (mouseup)="mouseUp($event)" (mousemove)="mouseMove($event)" id="hd-bounding-canvas" width="1920" height="1080"></canvas> -->
         </div>
-        <div *ngIf="uploading" class="card uploader-card"> 
+        <div *ngIf="uploading" class="card uploader-card">
+          <button (click)="initiateCrop()" [primary]="true" kendoButton [disabled]="!readyToCrop" class="crop-button">CROP</button> 
           <div class="progress-percentage-container">
             <p id="progress"></p>
           </div>
@@ -51,7 +62,14 @@
                 <div class="preview-pane-container"></div>
                 <canvas (mousedown)="mouseDown($event)" (mouseup)="mouseUp($event)" (mousemove)="mouseMove($event)" id="hd-bounding-canvas" width="1920" height="1080"></canvas>
             </div>
-            <div class="thumbnail-strip"></div>
+            <div class="thumbnail-strip">
+                <!-- <canvas id="copy-canvas" width="625" height="625"></canvas> -->
+                <canvas id="thumbnail-canvas1" width="300" height="300"></canvas>
+                <canvas id="thumbnail-canvas2" width="300" height="300"></canvas>
+                <canvas id="thumbnail-canvas3" width="300" height="300"></canvas>
+
+
+            </div>
           </div>
           <div class="framestrip-container">
             <div class="canvas-container frame-container"></div>
