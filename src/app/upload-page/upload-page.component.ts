@@ -14,6 +14,7 @@ export class UploadPageComponent implements OnInit {
 
   switch = false;
   third = false;
+  frame_container: any;
 
 
   thumbnailCounter = 0;
@@ -256,6 +257,15 @@ export class UploadPageComponent implements OnInit {
     let files = src.target.files; 
     setTimeout(() => {
       this.boundingCanvasInit()
+      this.frame_container = document.getElementById('frame-container')
+      for(let i = 0; i < files.length; i++ ){
+        var div = document.createElement("div");   
+        div.style.height = "152px";
+        div.style.width = this.frame_container.clientWidth/files.length + 'px';
+        div.style.border = '1px solid grey';
+        div.classList.add('dynamicFrames')           
+        this.frame_container.appendChild(div);
+      }
       if (files) {
         for(let i = 0; i < files.length; i++) {
           this.insertFrame(files[i]);
@@ -268,16 +278,14 @@ export class UploadPageComponent implements OnInit {
   insertFrame(file){
     
     const that = this;
-    console.log('inserting', 'file is', file , 'incrementer is ', this.incrementer)
+    console.log('inserting', 'file is', file , 'incrementer is ', this.incrementer, 'frame container is ', this.frame_container)
+
     var imgSrc = URL.createObjectURL(file);
     
-    const frames = document.getElementsByClassName('frame') as HTMLCollectionOf<HTMLElement>;  
-    // setTimeout(function(){
-    //   console.log('frames are', frames, frames[0])
-    //   frames[that.incrementer].style.backgroundImage = "url(" + imgSrc + ")"; 
-    //   frames[that.incrementer].style.backgroundSize = "100% 100%"
-    //   frames[that.incrementer].style.backgroundRepeat = "no-repeat"
-    // })
+    const frames = document.getElementsByClassName('dynamicFrames') as HTMLCollectionOf<HTMLElement>;  
+
+
+
 
     // return
     console.log('frames are', frames, frames[0])

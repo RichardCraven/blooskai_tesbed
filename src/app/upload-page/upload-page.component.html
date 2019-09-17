@@ -74,15 +74,15 @@
                 <!-- <canvas id="copy-canvas" width="625" height="625"></canvas> -->
 
 
-                <!-- <canvas id="thumbnail-canvas0" width="300" height="300"></canvas>
-                <canvas id="thumbnail-canvas1" width="300" height="300"></canvas>
+                <canvas id="thumbnail-canvas" width="300" height="300"></canvas>
+                <!-- <canvas id="thumbnail-canvas1" width="300" height="300"></canvas>
                 <canvas id="thumbnail-canvas2" width="300" height="300"></canvas> -->
 
 
             </div>
           </div>
           <div class="framestrip-container">
-            <div class="canvas-container frame-container"></div>
+            <div class="canvas-container" id='frame-container'></div>
             <div class="audiostrip"></div>
           </div>
           <button (click)="uploading = false" class="cancel-button">Cancel</button>

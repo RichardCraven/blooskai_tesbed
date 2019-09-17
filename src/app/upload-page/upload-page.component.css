@@ -138,10 +138,11 @@ label input{
     background: transparent;
     border: none;
 }
-.frame-container{
+#frame-container{
     height: 150px;
     width: 100%;
     border: 1px solid lightgrey;
+    display: flex;
 }
 .audiostrip{
     height: 50px;
