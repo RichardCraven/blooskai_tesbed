@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Component({
   selector: 'app-upload-page',
@@ -12,7 +12,14 @@ export class UploadPageComponent implements OnInit {
   progressBar: any;
   resolution1080 = true;
 
-  SERVER_URL = 'localhost:3000'
+  switch = false;
+  third = false;
+
+
+  thumbnailCounter = 0;
+
+  SERVER_URL = 'http://18.222.224.237:5500/'
+  // SERVER_URL = 'https://jsonplaceholder.typicode.com/posts/1'
   uploadForm;
 
   uploading = false;
@@ -40,7 +47,6 @@ export class UploadPageComponent implements OnInit {
     canvas: HTMLCanvasElement,
     context: CanvasRenderingContext2D
   }
-  thumbnailCounter = 0;
 
 
   // Below are props from mid panel
@@ -56,6 +62,10 @@ export class UploadPageComponent implements OnInit {
   selectMode: boolean = false;
   loadTimer: any; 
   thumbnailContainer: any;
+
+  selectedImgSrc: any;
+  incrementer = 0;
+
   rect = {
     startX : null,
     startY : null,
@@ -68,7 +78,17 @@ export class UploadPageComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private httpClient: HttpClient) { }
 
   ngOnInit() {
-    console.log('in init');
+    // console.log('initting')
+    
+    // this.httpClient.get(this.SERVER_URL).subscribe(data => {
+    //   console.log(data);
+    // });
+    
+
+
+
+
+
     this.thumbnailArr.push(this.thumbnail1, this.thumbnail2, this.thumbnail3)
     this.uploadForm = this.formBuilder.group({
       profile: ['']
@@ -140,16 +160,37 @@ export class UploadPageComponent implements OnInit {
     if (event.target.files.length > 0) {
       const file = event.target.files[0];
       this.uploadForm.get('profile').setValue(file);
+      console.log('upload form is now ', this.uploadForm)
     }
   }
   onSubmit() {
     const formData = new FormData();
     formData.append('file', this.uploadForm.get('profile').value);
 
-    this.httpClient.post<any>(this.SERVER_URL, formData).subscribe(
-      (res) => console.log(res),
+    const headers = new HttpHeaders()
+             .set('cache-control', 'no-cache')
+             .set('content-type', 'application/json')
+
+    this.httpClient.post<any>(this.SERVER_URL, formData, {headers}).subscribe(
+      (res) => console.log('res is ', res),
       (err) => console.log(err)
     );
+
+    // fetch('https://jsonplaceholder.typicode.com/posts', {
+    // method: 'POST',
+    // body: JSON.stringify({
+    //   title: 'foo',
+    //   body: 'bar',
+    //   userId: 1
+    // }),
+    // headers: {
+    //   "Content-type": "application/json; charset=UTF-8"
+    // }
+    // })
+    // .then(response => response.json())
+    // .then(json => console.log(json))
+
+    // return this.httpClient.get(this.SERVER_URL);
   }
   beginUpload(){
     this.uploading = true;
@@ -167,12 +208,12 @@ export class UploadPageComponent implements OnInit {
     this.boundingCanvas =  document.getElementById('hd-bounding-canvas') as HTMLCanvasElement;
     this.ctx = this.boundingCanvas.getContext('2d');
 
-    this.thumbnailArr[0].canvas = document.getElementById('thumbnail-canvas1') as HTMLCanvasElement;
-    this.thumbnailArr[0].context = this.thumbnailArr[0].canvas.getContext('2d');
-    this.thumbnailArr[1].canvas = document.getElementById('thumbnail-canvas1') as HTMLCanvasElement;
-    this.thumbnailArr[1].context = this.thumbnailArr[0].canvas.getContext('2d');
-    this.thumbnailArr[2].canvas = document.getElementById('thumbnail-canvas1') as HTMLCanvasElement;
-    this.thumbnailArr[2].context = this.thumbnailArr[0].canvas.getContext('2d');
+    // this.thumbnailArr[0].canvas = document.getElementById('thumbnail-canvas0') as HTMLCanvasElement;
+    // this.thumbnailArr[0].context = this.thumbnailArr[0].canvas.getContext('2d');
+    // this.thumbnailArr[1].canvas = document.getElementById('thumbnail-canvas1') as HTMLCanvasElement;
+    // this.thumbnailArr[1].context = this.thumbnailArr[1].canvas.getContext('2d');
+    // this.thumbnailArr[2].canvas = document.getElementById('thumbnail-canvas2') as HTMLCanvasElement;
+    // this.thumbnailArr[2].context = this.thumbnailArr[2].canvas.getContext('2d');
 
     // this.copyCanvas = <HTMLCanvasElement> document.getElementById('copy-canvas');
     // this.copyCtx = this.copyCanvas.getContext('2d');
@@ -184,7 +225,7 @@ export class UploadPageComponent implements OnInit {
     // const ctx = canvas.getContext('2d');
   }
   setBoundingCanvasDimensions(height){
-    console.log('in set dimensions, height is ', height);
+    // console.log('in set dimensions, height is ', height);
     height === 720 ? this.setDimensions = {
       height: 720,
       width: 1280
@@ -205,140 +246,116 @@ export class UploadPageComponent implements OnInit {
   //   };
   // }
   crop(){
-    console.log('cropped. img obj is ', this.imgObj)
+    // console.log('cropped. img obj is ', this.imgObj)
   }
-  waitThenExtract(source){
+
+  insertFrames(src){
+    
+    //Retrieve all the files from the FileList object
     this.uploading = true;
-    this.beginUpload()
-    const that = this;
-    setTimeout(function(){
-      that.progressBar = document.getElementById("progressBar"); 
-      console.log('PROGRESS', that.progressBar)
-    }, 0)
-    setTimeout(function(){that.extractFrames(source)}, 500)
+    let files = src.target.files; 
+    setTimeout(() => {
+      this.boundingCanvasInit()
+      if (files) {
+        for(let i = 0; i < files.length; i++) {
+          this.insertFrame(files[i]);
+        }
+      } else {
+            alert("Failed to load files"); 
+      }
+    })
   }
-  extractFrames(source) {
+  insertFrame(file){
+    
     const that = this;
-   
-    let bool = false;
-    this.paneContainer = document.getElementsByClassName('preview-pane-container')[0];
+    console.log('inserting', 'file is', file , 'incrementer is ', this.incrementer)
+    var imgSrc = URL.createObjectURL(file);
     
-    const self = source.target;
-    var video = document.createElement('video');
-    video.src = URL.createObjectURL(self.files[0]);
-    var array = [];
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    var pro = document.querySelector('#progress');
-    let progressBar = this.progressBar;
+    const frames = document.getElementsByClassName('frame') as HTMLCollectionOf<HTMLElement>;  
+    // setTimeout(function(){
+    //   console.log('frames are', frames, frames[0])
+    //   frames[that.incrementer].style.backgroundImage = "url(" + imgSrc + ")"; 
+    //   frames[that.incrementer].style.backgroundSize = "100% 100%"
+    //   frames[that.incrementer].style.backgroundRepeat = "no-repeat"
+    // })
+
+    // return
+    console.log('frames are', frames, frames[0])
+    frames[this.incrementer].style.backgroundImage = "url(" + imgSrc + ")"; 
+    frames[this.incrementer].style.backgroundSize = "100% 100%"
+    frames[this.incrementer].style.backgroundRepeat = "no-repeat"
     
-    function initCanvas(e) {
-      canvas.width = this.videoWidth;
-      canvas.height = this.videoHeight;
-    }
 
-    function drawFrame(e) {
-      // console.log('dur',this.duration, '______', this.currentTime)
-      this.pause();
-      ctx.drawImage(this, 0, 0);
-      /* 
-      this will save as a Blob, less memory consumptive than toDataURL
-      a polyfill can be found at
-      https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob#Polyfill
-      */
-      canvas.toBlob(saveFrame, 'image/jpeg');
-      let progress = ((this.currentTime / this.duration) * 100).toFixed(2)
-      pro.innerHTML = progress + ' %';
-      progressBar.style.width = progress + '%';
-      // pro.innerHTML = this.duration + '____________' + this.currentTime;
-      if (this.currentTime < this.duration) {
-        this.play();
-      }
-      if(((this.currentTime / this.duration) * 100).toFixed(2) == '100.00' && !bool){
-        bool = true;
-        onend('e')
-      }
-    }
-    function saveFrame(blob) {
-      array.push(blob);
-    }
-    function revokeURL(e) {
-      URL.revokeObjectURL(this.src);
-    }
-    function onend(e) {
-      const audiostrip = document.getElementsByClassName('audiostrip')[0];
-      audiostrip.classList.add("viewable")
-      // const framesToRender = [];
-      const num = Math.floor(array.length/8);
-      const container = document.getElementsByClassName('frame-container')[0];
-      // console.log('container i s', container, 'array is ', array)
-      let counter = 0;
-      for (var i = 0; i < array.length; i++) {
-        if(i % num !== 0){
-          continue
-        }
-        if(counter < 8){
-          counter++
-        } else {
-          return
-        }
-        let img = new Image();
-        img.width = container.clientWidth/8
-        img.height = 150
-        img.onload = revokeURL;
-        // img.classList.add("border-top-red")
-        // img.setAttribute("style", "border-top: 4px solid blue")
-        // img.style = "border-top: 5px solid red"
-        // img.border = '5px solid red'
-        img.src = URL.createObjectURL(array[i]);
-        container.appendChild(img);
-        img.addEventListener('mouseover', function(){
-          if(that.frameSelected) return;
-          that.paneContainer.innerHTML = '';
-          ctx.drawImage(this, 0, 0);
-          canvas.toBlob(saveFrame, 'image/jpeg');
+    let img = new Image();
+    img.src = imgSrc;
 
-          let paneImage = new Image();
-          paneImage.width = that.paneContainer.clientWidth
-          paneImage.height = that.paneContainer.clientHeight
-          paneImage.onload = revokeURL;
-          
-          const frame = array[array.length-1]
-          if(frame !== undefined){
-            paneImage.src = URL.createObjectURL && URL.createObjectURL(frame);
-            that.selectedFrameSrc = URL.createObjectURL(array[array.length-1])
-            that.paneContainer.appendChild(paneImage);
-            array.shift()
-            console.log('SELECTED FRMAE IS ', that)
-          }
-        })
-        img.addEventListener('mousedown', function(){
-          if(!that.frameSelected){
-            this.setAttribute("style", "border-top: 4px solid blue")
-            that.frameSelected = true;
-            that.boundingCanvasInit();
-          }
-        })
-      }
-      // we don't need the video's objectURL anymore
-      URL.revokeObjectURL(self.src);
-      //clear the array and video
-      array = [];
-      // video.removeEventListener('loadedmetadata', initCanvas, false);
-      // video.removeEventListener('ended', onend, false);
-      // video.removeEventListener('timeupdate', drawFrame, false);
+
+    let paneContainer = document.getElementsByClassName('preview-pane-container')[0];
+    frames[this.incrementer].addEventListener('mouseover', function(){
+      that.selectedImgSrc = imgSrc;
+      // if(that.frameSelected) return;
+      paneContainer.innerHTML = '';
+      let paneImage = new Image();
+      paneImage.height = paneContainer.clientHeight;
+      paneImage.width = paneContainer.clientWidth;
+      paneImage.src = imgSrc;
+      paneContainer.appendChild(paneImage);
+    })
+    img.addEventListener('mousedown', function(){
+        this.setAttribute("style", "border-top: 4px solid blue")
+    })
+    this.incrementer ++;
+  }
+  initiateCrop(src){
+    this.imgObj = new Image(625, 625);
+    this.imgObj.src = this.selectedImgSrc;
+    const that = this;
+    this.imgObj.onload = function(){
+      that.onPreloadComplete()
     };
-    video.muted = true;
-    console.log('vid is ', video)
-    video.addEventListener('loadedmetadata', initCanvas, false);
-    video.addEventListener('timeupdate', drawFrame, false);
-    // video.addEventListener('ended', onend, false);
-    video.play();
   }
-  // boundingCanvasInit(){
-  //   this.boundingCanvas =  document.getElementById('bounding-canvas') as HTMLCanvasElement;
-  //   this.ctx = this.boundingCanvas.getContext('2d');
-  // }
+  onPreloadComplete(){
+    const thumbnail = new Image(625, 625);
+
+    const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
+    const ctx = canvas.getContext('2d');
+
+    var newImgSrc = this.getImagePortion(this.imgObj, this.rect.w, this.rect.h, this.rect.startX, this.rect.startY, 1);
+    thumbnail.src = newImgSrc;
+    console.log('thumbnail is ', thumbnail)
+    ctx.drawImage(thumbnail, 0, 0)
+  }
+  getImagePortion(imgObj, newWidth, newHeight, startX, startY, ratio){
+    var tnCanvas = document.createElement('canvas');
+    var tnCanvasContext = tnCanvas.getContext('2d');
+    tnCanvas.width = newWidth; 
+    tnCanvas.height = newHeight;
+    var bufferCanvas = document.createElement('canvas');
+    var bufferContext = bufferCanvas.getContext('2d');
+    bufferCanvas.width = imgObj.width;
+    bufferCanvas.height = imgObj.height;
+    bufferContext.drawImage(imgObj, 0, 0, 625, 625);
+    
+    if(!this.switch && !this.third){
+      const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
+      this.switch = true;
+    } else if(this.switch && !this.third) {
+      const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas2')
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
+      this.third = true;
+    } else {
+      const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas3')
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
+    }
+    this.copyCtx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
+    tnCanvasContext.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
+    return tnCanvas.toDataURL();
+   }
+
   mouseMove(e) {
     if (this.drag) {
       
@@ -380,74 +397,4 @@ export class UploadPageComponent implements OnInit {
     this.ctx.lineWidth = 4;
     this.ctx.strokeRect(this.rect.startX, this.rect.startY, this.rect.w, this.rect.h);
   }
-
-  ///FROM PREVIOUS ITERATION
-
-  initiateCrop(){
-    console.log('initiating crop');
-    this.imgObj = new Image(this.setDimensions.height, this.setDimensions.width);
-    this.imgObj.src = this.selectedFrameSrc
-    const that = this;
-    this.imgObj.onload = function(){
-      // that.crop()
-      that.onPreloadComplete()
-    };
-  }
-  
-  onPreloadComplete(){
-    // this.copyCtx.drawImage(this.imgObj, 0, 0, 625, 625)
-    // return
-    
-    const thumbnail = new Image(300, 300);
-
-    // const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas1')
-    // const ctx = canvas.getContext('2d');
-
-    var newImgSrc = this.getImagePortion(this.imgObj, this.rect.w, this.rect.h, this.rect.startX, this.rect.startY, 1);
-    thumbnail.src = newImgSrc;
-    console.log('thumbnail is ', thumbnail)
-    // ctx.drawImage(thumbnail, 0, 0)
-    console.log('about to set context, counter is at ', this.thumbnailCounter)
-
-    this.thumbnailArr[this.thumbnailCounter].context.drawImage(thumbnail, 0, 0)
-
-    this.thumbnailCounter ++
-
-
-
-
-
-    // document.getElementsByClassName('top-window')[0].appendChild(thumbnail)
-    // this.copyCtx.drawImage(thumbnail, 0, 0, 625, 625)
-  }
-  getImagePortion(imgObj, newWidth, newHeight, startX, startY, ratio){
-    console.log('new w and h : ', newWidth, newHeight)
-    /* the parameters: - the image element - the new width - the new height - the x point we start taking pixels - the y point we start taking pixels - the ratio */
-    //set up canvas for thumbnail
-    var tnCanvas = document.createElement('canvas');
-    var tnCanvasContext = tnCanvas.getContext('2d');
-    tnCanvas.width = newWidth; 
-    tnCanvas.height = newHeight;
-    
-    /* use the sourceCanvas to duplicate the entire image. This step was crucial for iOS4 and under devices. Follow the link at the end of this post to see what happens when you don’t do this */
-    var bufferCanvas = document.createElement('canvas');
-    var bufferContext = bufferCanvas.getContext('2d');
-    console.log(imgObj.width, ' <-- should be 625', imgObj.height)
-    bufferCanvas.width = imgObj.width;
-    bufferCanvas.height = imgObj.height;
-    bufferContext.drawImage(imgObj, 0, 0, 625, 625);
-    
-
-    const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas1')
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
-
-    /* now we use the drawImage method to take the pixels from our bufferCanvas and draw them into our thumbnail canvas */
-    // this.copyCtx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
-
-    // this.copyCtx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
-    tnCanvasContext.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
-
-    return tnCanvas.toDataURL();
-   }
 }

@@ -103,6 +103,11 @@ button.upload-new{
     width: 300px;
     border: 1px dotted lightgrey;
 }
+.frame{
+    height: 300px;
+    width: 300px;
+    border: 1px dashed pink;
+}
 .canvas-container{
     position: relative;
 }
