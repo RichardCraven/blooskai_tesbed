@@ -54,8 +54,8 @@ export class UploadPageComponent implements OnInit {
   boundingCanvas: HTMLCanvasElement;
   ctx: any;
 
-  copyCanvas: HTMLCanvasElement;
-  copyCtx: any;
+  // copyCanvas: HTMLCanvasElement;
+  // copyCtx: any;
 
   drag: boolean = false;
   readyToCrop: boolean = false;
@@ -90,7 +90,7 @@ export class UploadPageComponent implements OnInit {
 
 
 
-    this.thumbnailArr.push(this.thumbnail1, this.thumbnail2, this.thumbnail3)
+    // this.thumbnailArr.push(this.thumbnail1, this.thumbnail2, this.thumbnail3)
     this.uploadForm = this.formBuilder.group({
       profile: ['']
     });
@@ -202,10 +202,6 @@ export class UploadPageComponent implements OnInit {
   }
   boundingCanvasInit(){
 
-    console.log('thumbnail array is ', this.thumbnailArr)
-    // this.thumbnailArr
-
-
     this.boundingCanvas =  document.getElementById('hd-bounding-canvas') as HTMLCanvasElement;
     this.ctx = this.boundingCanvas.getContext('2d');
 
@@ -220,7 +216,8 @@ export class UploadPageComponent implements OnInit {
     // this.copyCtx = this.copyCanvas.getContext('2d');
 
     this.boundingCanvas.style.zIndex = '10'
-    // console.log('initting bounding canvas as ', this.boundingCanvas, 'copy canvas is ', this.copyCanvas)
+
+    console.log('initting bounding canvas as ', this.boundingCanvas)
 
     // const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas1')
     // const ctx = canvas.getContext('2d');
@@ -343,11 +340,13 @@ export class UploadPageComponent implements OnInit {
     bufferCanvas.width = imgObj.width;
     bufferCanvas.height = imgObj.height;
     bufferContext.drawImage(imgObj, 0, 0, 625, 625);
-    
+    console.log('buffer canvas is , ', bufferCanvas, bufferContext, 'img obj is ', imgObj)
     if(!this.switch && !this.third){
+      console.log('inside')
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
+      console.log('canvas is ', canvas)
       this.switch = true;
     } else if(this.switch && !this.third) {
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas2')
@@ -359,7 +358,7 @@ export class UploadPageComponent implements OnInit {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
     }
-    this.copyCtx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
+    // this.copyCtx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
     tnCanvasContext.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
     return tnCanvas.toDataURL();
    }
