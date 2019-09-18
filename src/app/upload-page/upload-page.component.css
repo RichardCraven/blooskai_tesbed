@@ -103,6 +103,10 @@ button.upload-new{
     width: 300px;
     border: 1px dotted lightgrey;
 }
+.thumbnail-strip img{
+    height: 100%;
+    width: 100%;
+}
 .frame{
     height: 300px;
     width: 300px;
@@ -123,7 +127,8 @@ button.upload-new{
 }
 .canvas-container.res1080{
     height: 1078px;
-    width: 1920px;
+    /* width: 1920px; */
+    width: 1078px;
     border: 1px dashed lightgrey;
 }
 #hd-bounding-canvas{

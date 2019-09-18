@@ -312,7 +312,7 @@ export class UploadPageComponent implements OnInit {
     this.incrementer ++;
   }
   initiateCrop(src){
-    this.imgObj = new Image(625, 625);
+    this.imgObj = new Image(1080, 1920);
     this.imgObj.src = this.selectedImgSrc;
     const that = this;
     this.imgObj.onload = function(){
@@ -320,14 +320,13 @@ export class UploadPageComponent implements OnInit {
     };
   }
   onPreloadComplete(){
-    const thumbnail = new Image(625, 625);
+    const thumbnail = new Image(1078, 1078);
 
     const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
     const ctx = canvas.getContext('2d');
 
     var newImgSrc = this.getImagePortion(this.imgObj, this.rect.w, this.rect.h, this.rect.startX, this.rect.startY, 1);
     thumbnail.src = newImgSrc;
-    console.log('thumbnail is ', thumbnail)
     ctx.drawImage(thumbnail, 0, 0)
   }
   getImagePortion(imgObj, newWidth, newHeight, startX, startY, ratio){
@@ -339,21 +338,23 @@ export class UploadPageComponent implements OnInit {
     var bufferContext = bufferCanvas.getContext('2d');
     bufferCanvas.width = imgObj.width;
     bufferCanvas.height = imgObj.height;
-    bufferContext.drawImage(imgObj, 0, 0, 625, 625);
+    bufferContext.drawImage(imgObj, 0, 0, 1078, 1078);
     console.log('buffer canvas is , ', bufferCanvas, bufferContext, 'img obj is ', imgObj)
     if(!this.switch && !this.third){
-      console.log('inside')
+      console.log('inside n0')
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
-      console.log('canvas is ', canvas)
+      // console.log('canvas is ', canvas)
       this.switch = true;
     } else if(this.switch && !this.third) {
+      console.log('inside n2')
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas2')
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
       this.third = true;
     } else {
+      console.log('inside n3')
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas3')
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
@@ -364,9 +365,9 @@ export class UploadPageComponent implements OnInit {
    }
 
   mouseMove(e) {
+    var rect = this.boundingCanvas.getBoundingClientRect();
     if (this.drag) {
       
-      var rect = this.boundingCanvas.getBoundingClientRect();
       // console.log('inside, rect is ', rect);
       this.rect.w = (e.clientX - rect.left) - this.rect.startX;
       this.rect.h = (e.clientY - rect.top) - this.rect.startY ;
@@ -385,11 +386,9 @@ export class UploadPageComponent implements OnInit {
   mouseUp(e) {
     this.drag = false;
     this.readyToCrop = true;
-    var rect = this.boundingCanvas.getBoundingClientRect();
-    this.rect.endX = e.clientX - rect.left;
-    this.rect.endY = e.clientY - rect.top;
     console.log('in mouseup', this.readyToCrop)
     if(this.cropping){
+      console.log('INSIDEEEEE')
       var rect = this.boundingCanvas.getBoundingClientRect();
       this.rect.endX = e.clientX - rect.left;
       this.rect.endY = e.clientY - rect.top;
