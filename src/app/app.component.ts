@@ -2,6 +2,8 @@ import { Component, OnInit, Injectable } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpProgressEvent, HttpEventType, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
 import { of } from 'rxjs/observable/of';
 import { concat } from 'rxjs/observable/concat';
 import { delay } from 'rxjs/operators/delay';
@@ -13,14 +15,15 @@ import { delay } from 'rxjs/operators/delay';
 })
 export class AppComponent implements OnInit{
   title = 'blooskai-testbed';
-  
-  constructor(){
-    console.log('constructing')
+  SERVER_URL = 'http://18.221.93.226:5500/reset'
+
+  constructor(private httpClient: HttpClient){
   }
   ngOnInit(){
-    console.log('initializing')
-    const el = document.querySelector('input')
-    console.log(el)
+    // console.log('initializing app.ts')
+    // this.httpClient.get(this.SERVER_URL).subscribe(data => {
+    //   console.log(data);
+    // });
   }
 }
 

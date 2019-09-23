@@ -19,7 +19,7 @@ export class UploadPageComponent implements OnInit {
 
   thumbnailCounter = 0;
 
-  SERVER_URL = 'http://18.222.224.237:5500/'
+  SERVER_URL = 'http://18.221.93.226:5500/'
   // SERVER_URL = 'https://jsonplaceholder.typicode.com/posts/1'
   uploadForm;
 
@@ -54,6 +54,12 @@ export class UploadPageComponent implements OnInit {
   boundingCanvas: HTMLCanvasElement;
   ctx: any;
 
+  httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type':  'application/json'
+    })
+  };
+
   // copyCanvas: HTMLCanvasElement;
   // copyCtx: any;
 
@@ -79,16 +85,20 @@ export class UploadPageComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private httpClient: HttpClient) { }
 
   ngOnInit() {
-    // console.log('initting')
+    console.log('getting')
+    this.httpClient.get(this.SERVER_URL).subscribe(data => {
+      console.log(data);
+    });
+    console.log('posting')
+    this.httpClient.post(this.SERVER_URL + 'train',{
+      "name":  "Customer004",
+      "email":  "customer004@email.com",
+      "tel":  "0000252525"
+      }, this.httpOptions
+      ).subscribe(data => {
+      console.log('post response ', data);
+    });
     
-    // this.httpClient.get(this.SERVER_URL).subscribe(data => {
-    //   console.log(data);
-    // });
-    
-
-
-
-
 
     // this.thumbnailArr.push(this.thumbnail1, this.thumbnail2, this.thumbnail3)
     this.uploadForm = this.formBuilder.group({
