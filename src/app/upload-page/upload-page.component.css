@@ -127,8 +127,8 @@ button.upload-new{
 }
 .canvas-container.res1080{
     height: 1078px;
-    /* width: 1920px; */
-    width: 1078px;
+    width: 1920px;
+    /* width: 1078px; */
     border: 1px dashed lightgrey;
 }
 #hd-bounding-canvas{
@@ -198,6 +198,6 @@ label input{
     height: 1082px;
     width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
 }

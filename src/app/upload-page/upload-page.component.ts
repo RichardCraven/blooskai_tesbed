@@ -322,7 +322,7 @@ export class UploadPageComponent implements OnInit {
     this.incrementer ++;
   }
   initiateCrop(src){
-    this.imgObj = new Image(1080, 1920);
+    this.imgObj = new Image(1920, 1080);
     this.imgObj.src = this.selectedImgSrc;
     const that = this;
     this.imgObj.onload = function(){
@@ -330,7 +330,7 @@ export class UploadPageComponent implements OnInit {
     };
   }
   onPreloadComplete(){
-    const thumbnail = new Image(1078, 1078);
+    const thumbnail = new Image(1920, 1080);
 
     const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
     const ctx = canvas.getContext('2d');
@@ -348,7 +348,7 @@ export class UploadPageComponent implements OnInit {
     var bufferContext = bufferCanvas.getContext('2d');
     bufferCanvas.width = imgObj.width;
     bufferCanvas.height = imgObj.height;
-    bufferContext.drawImage(imgObj, 0, 0, 1078, 1078);
+    bufferContext.drawImage(imgObj, 0, 0, 1920, 1078);
     console.log('buffer canvas is , ', bufferCanvas, bufferContext, 'img obj is ', imgObj)
     if(!this.switch && !this.third){
       console.log('inside n0')
