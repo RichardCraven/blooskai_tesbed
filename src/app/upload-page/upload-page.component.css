@@ -42,7 +42,7 @@
 }
 .header{
     width: 100%;
-    height: 100px;
+    height: 119px;
     display: flex;
     align-items: center;
     border-bottom: 1px solid aliceblue;
@@ -68,10 +68,12 @@ button{
 }
 button.upload-new{
     width: 300px;
+    width: 402px;
     margin-top: 0px;
     margin-left: 0px;
     position: absolute;
     height: 90px;
+    height: 121px;
     background-color: aliceblue;
     cursor: pointer;
     right: 79px;

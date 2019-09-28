@@ -3,21 +3,18 @@
         <div *ngIf="!uploading" class="card uploads-page-card">
           <div class="header">
             <div class="title">Videos Uploaded</div>
-            <!-- <form [formGroup] = "uploadForm" (ngSubmit)="onSubmit()">      
-                <div>
-                  <input type="file" name="profile" (change)="onFileSelect($event)" />
-                </div>
-                <div>
-                  <button  kendoButton class='upload-new' type="submit">
-                    <span>Upload Newish</span>
-                  </button>
-                </div>
-            </form> -->
             <button  kendoButton class='upload-new'>
               <label for="my-input-element-1" class="input-wrapper">
-                  <span>Upload New</span>
-                  <input  (change)="insertFrames($event)" type="file" multiple id="my-input-element-1" style="display:none" />
-                  <!-- <input type="file" accept="video/*" id="my-input-element-1" style="display:none" (change)="waitThenExtract($event)"/> -->
+                  <!-- <span>Upload New</span> -->
+                  <!-- <input  (change)="insertFrames($event)" type="file" multiple id="my-input-element-1" style="display:none" /> -->
+                  <form [formGroup] = "uploadForm" (ngSubmit)="onSubmit()">      
+                    <div>
+                      <input type="file" name="profile" (change)="onFileSelect($event)" />
+                    </div>
+                    <div>
+                      <button type="submit">Upload</button>
+                    </div>
+                  </form>
               </label>
             </button>
           </div>

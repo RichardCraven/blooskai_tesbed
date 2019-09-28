@@ -20,10 +20,10 @@ export class AppComponent implements OnInit{
   constructor(private httpClient: HttpClient){
   }
   ngOnInit(){
-    // console.log('initializing app.ts')
-    // this.httpClient.get(this.SERVER_URL).subscribe(data => {
-    //   console.log(data);
-    // });
+    console.log('resetting in app.component')
+    this.httpClient.get(this.SERVER_URL).subscribe(data => {
+      console.log(data);
+    });
   }
 }
 

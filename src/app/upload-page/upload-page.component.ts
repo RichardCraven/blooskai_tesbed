@@ -2,6 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+interface ApiUploadResult {
+  url: string;
+}
+
+export interface UploadResult {
+  name: string;
+  type: string;
+  size: number;
+  url: string;
+}
+
 @Component({
   selector: 'app-upload-page',
   templateUrl: './upload-page.component.html',
@@ -19,9 +30,9 @@ export class UploadPageComponent implements OnInit {
 
   thumbnailCounter = 0;
 
-  SERVER_URL = 'http://18.221.93.226:5500/'
-  // SERVER_URL = 'https://jsonplaceholder.typicode.com/posts/1'
-  uploadForm;
+  SERVER_URL = 'http://18.221.93.226:5500/train'
+
+  uploadForm: FormGroup; 
 
   uploading = false;
   selectedFrameSrc: any;
@@ -59,10 +70,6 @@ export class UploadPageComponent implements OnInit {
       'Content-Type':  'application/json'
     })
   };
-
-  // copyCanvas: HTMLCanvasElement;
-  // copyCtx: any;
-
   drag: boolean = false;
   readyToCrop: boolean = false;
   cropping: boolean = false;
@@ -85,22 +92,7 @@ export class UploadPageComponent implements OnInit {
   constructor(private formBuilder: FormBuilder, private httpClient: HttpClient) { }
 
   ngOnInit() {
-    console.log('getting')
-    this.httpClient.get(this.SERVER_URL).subscribe(data => {
-      console.log(data);
-    });
-    console.log('posting')
-    this.httpClient.post(this.SERVER_URL + 'train',{
-      "name":  "Customer004",
-      "email":  "customer004@email.com",
-      "tel":  "0000252525"
-      }, this.httpOptions
-      ).subscribe(data => {
-      console.log('post response ', data);
-    });
-    
-
-    // this.thumbnailArr.push(this.thumbnail1, this.thumbnail2, this.thumbnail3)
+    console.log('upload page init')
     this.uploadForm = this.formBuilder.group({
       profile: ['']
     });
@@ -177,31 +169,10 @@ export class UploadPageComponent implements OnInit {
   onSubmit() {
     const formData = new FormData();
     formData.append('file', this.uploadForm.get('profile').value);
-
-    const headers = new HttpHeaders()
-             .set('cache-control', 'no-cache')
-             .set('content-type', 'application/json')
-
-    this.httpClient.post<any>(this.SERVER_URL, formData, {headers}).subscribe(
+    this.httpClient.post<any>(this.SERVER_URL, this.uploadForm.get('profile').value).subscribe(
       (res) => console.log('res is ', res),
-      (err) => console.log(err)
+      (err) => console.log('error is ', err)
     );
-
-    // fetch('https://jsonplaceholder.typicode.com/posts', {
-    // method: 'POST',
-    // body: JSON.stringify({
-    //   title: 'foo',
-    //   body: 'bar',
-    //   userId: 1
-    // }),
-    // headers: {
-    //   "Content-type": "application/json; charset=UTF-8"
-    // }
-    // })
-    // .then(response => response.json())
-    // .then(json => console.log(json))
-
-    // return this.httpClient.get(this.SERVER_URL);
   }
   beginUpload(){
     this.uploading = true;
@@ -215,25 +186,9 @@ export class UploadPageComponent implements OnInit {
     this.boundingCanvas =  document.getElementById('hd-bounding-canvas') as HTMLCanvasElement;
     this.ctx = this.boundingCanvas.getContext('2d');
 
-    // this.thumbnailArr[0].canvas = document.getElementById('thumbnail-canvas0') as HTMLCanvasElement;
-    // this.thumbnailArr[0].context = this.thumbnailArr[0].canvas.getContext('2d');
-    // this.thumbnailArr[1].canvas = document.getElementById('thumbnail-canvas1') as HTMLCanvasElement;
-    // this.thumbnailArr[1].context = this.thumbnailArr[1].canvas.getContext('2d');
-    // this.thumbnailArr[2].canvas = document.getElementById('thumbnail-canvas2') as HTMLCanvasElement;
-    // this.thumbnailArr[2].context = this.thumbnailArr[2].canvas.getContext('2d');
-
-    // this.copyCanvas = <HTMLCanvasElement> document.getElementById('copy-canvas');
-    // this.copyCtx = this.copyCanvas.getContext('2d');
-
     this.boundingCanvas.style.zIndex = '10'
-
-    console.log('initting bounding canvas as ', this.boundingCanvas)
-
-    // const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas1')
-    // const ctx = canvas.getContext('2d');
   }
   setBoundingCanvasDimensions(height){
-    // console.log('in set dimensions, height is ', height);
     height === 720 ? this.setDimensions = {
       height: 720,
       width: 1280
@@ -243,22 +198,7 @@ export class UploadPageComponent implements OnInit {
     }
     //to potentially manually reset the canvas dimensions
   }
-  
-  // initiateCrop(src){
-  //   console.log('initiating crop');
-  //   this.imgObj = new Image(625, 625);
-  //   this.imgObj.src = '../../../assets/sample.png'
-  //   const that = this;
-  //   this.imgObj.onload = function(){
-  //     that.onPreloadComplete()
-  //   };
-  // }
-  crop(){
-    // console.log('cropped. img obj is ', this.imgObj)
-  }
-
   insertFrames(src){
-    
     //Retrieve all the files from the FileList object
     this.uploading = true;
     let files = src.target.files; 
@@ -282,20 +222,12 @@ export class UploadPageComponent implements OnInit {
       }
     })
   }
-  insertFrame(file){
-    
+  insertFrame(file: any){
     const that = this;
-    console.log('inserting', 'file is', file , 'incrementer is ', this.incrementer, 'frame container is ', this.frame_container)
-
     var imgSrc = URL.createObjectURL(file);
     
     const frames = document.getElementsByClassName('dynamicFrames') as HTMLCollectionOf<HTMLElement>;  
 
-
-
-
-    // return
-    console.log('frames are', frames, frames[0])
     frames[this.incrementer].style.backgroundImage = "url(" + imgSrc + ")"; 
     frames[this.incrementer].style.backgroundSize = "100% 100%"
     frames[this.incrementer].style.backgroundRepeat = "no-repeat"
@@ -308,7 +240,6 @@ export class UploadPageComponent implements OnInit {
     let paneContainer = document.getElementsByClassName('preview-pane-container')[0];
     frames[this.incrementer].addEventListener('mouseover', function(){
       that.selectedImgSrc = imgSrc;
-      // if(that.frameSelected) return;
       paneContainer.innerHTML = '';
       let paneImage = new Image();
       paneImage.height = paneContainer.clientHeight;
@@ -349,27 +280,22 @@ export class UploadPageComponent implements OnInit {
     bufferCanvas.width = imgObj.width;
     bufferCanvas.height = imgObj.height;
     bufferContext.drawImage(imgObj, 0, 0, 1920, 1078);
-    console.log('buffer canvas is , ', bufferCanvas, bufferContext, 'img obj is ', imgObj)
     if(!this.switch && !this.third){
-      console.log('inside n0')
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
       // console.log('canvas is ', canvas)
       this.switch = true;
     } else if(this.switch && !this.third) {
-      console.log('inside n2')
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas2')
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
       this.third = true;
     } else {
-      console.log('inside n3')
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas3')
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
     }
-    // this.copyCtx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
     tnCanvasContext.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
     return tnCanvas.toDataURL();
    }
@@ -377,8 +303,6 @@ export class UploadPageComponent implements OnInit {
   mouseMove(e) {
     var rect = this.boundingCanvas.getBoundingClientRect();
     if (this.drag) {
-      
-      // console.log('inside, rect is ', rect);
       this.rect.w = (e.clientX - rect.left) - this.rect.startX;
       this.rect.h = (e.clientY - rect.top) - this.rect.startY ;
       this.ctx.clearRect(0,0,this.boundingCanvas.width,this.boundingCanvas.height);
@@ -386,7 +310,6 @@ export class UploadPageComponent implements OnInit {
     }
   }
   mouseDown(e) {
-    console.log('in mousedown', this.boundingCanvas)
     var rect = this.boundingCanvas.getBoundingClientRect();
     this.rect.startX = e.clientX - rect.left;
     this.rect.startY = e.clientY - rect.top;
@@ -396,9 +319,7 @@ export class UploadPageComponent implements OnInit {
   mouseUp(e) {
     this.drag = false;
     this.readyToCrop = true;
-    console.log('in mouseup', this.readyToCrop)
     if(this.cropping){
-      console.log('INSIDEEEEE')
       var rect = this.boundingCanvas.getBoundingClientRect();
       this.rect.endX = e.clientX - rect.left;
       this.rect.endY = e.clientY - rect.top;
