@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+// import { GetFramesService } from '../services/get-frames.service';
 
 interface ApiUploadResult {
   url: string;
@@ -26,16 +27,19 @@ export class UploadPageComponent implements OnInit {
   switch = false;
   third = false;
   frame_container: any;
+  frameStrips = [];
 
 
   thumbnailCounter = 0;
 
-  SERVER_URL = 'http://18.221.93.226:5500/train'
+  // SERVER_URL = 'http://18.221.93.226:5500/train'
+  SERVER_URL = 'http://13.59.126.171:5500/train'
 
   uploadForm: FormGroup; 
 
   uploading = false;
   selectedFrameSrc: any;
+  selectedFrameId: string;
   imgObj: any;
   paneContainer: any;
   frameSelected = false;
@@ -169,10 +173,90 @@ export class UploadPageComponent implements OnInit {
   onSubmit() {
     const formData = new FormData();
     formData.append('file', this.uploadForm.get('profile').value);
-    this.httpClient.post<any>(this.SERVER_URL, this.uploadForm.get('profile').value).subscribe(
+    const file = this.uploadForm.get('profile').value;
+    this.httpClient.post<any>(this.SERVER_URL, file).subscribe(
       (res) => console.log('res is ', res),
       (err) => console.log('error is ', err)
     );
+    return
+    const that = this;
+    upload();
+    function upload() {
+      // $( "#progress" ).empty();
+      // $( "#uploadresult" ).empty();
+      
+      // take the file from the input
+      // var file = document.getElementById('fileInput').files[0];
+      // console.log('file is ', file)
+      console.log('file is ', file)
+
+        var reader = new FileReader();
+        reader.readAsBinaryString(file); // alternatively you can use readAsDataURL
+        reader.onloadend  = function(evt)
+        {
+            
+            // create XHR instance
+            let xhr = new XMLHttpRequest();
+    
+            // send the file through POST
+            xhr.open("POST", that.SERVER_URL);
+            // xhr.setRequestHeader('X-Filename', file.name);
+
+            xhr.onload = function (oEvent) {
+              // Uploaded.
+              console.log('loaded')
+            };
+            
+            // var blob = new Blob(['test123'], {type: 'text/plain'});
+            
+            xhr.onprogress = function (e) {
+              console.log('$$:: ', e.loaded, ' / ', e.total)
+            };
+            
+            xhr.send(file);
+
+            console.log('this: ', this, 'evt is ', evt)
+
+            // make sure we have the sendAsBinary method on all browsers
+            // XMLHttpRequest.prototype.mySendAsBinary = function(text){
+            //     var data = new ArrayBuffer(text.length);
+            //     var ui8a = new Uint8Array(data, 0);
+            //     for (var i = 0; i < text.length; i++) ui8a[i] = (text.charCodeAt(i) & 0xff);
+    
+            //     if(typeof window.Blob == "function")
+            //     {
+            //         var blob = new Blob([data]);
+            //     }else{
+            //         var bb = new (window.MozBlobBuilder || window.WebKitBlobBuilder || window.BlobBuilder)();
+            //         bb.append(data);
+            //         var blob = bb.getBlob();
+            //     }
+    
+            //     this.send(blob);
+            // }
+    
+            
+    
+            // state change observer - we need to know when and if the file was successfully uploaded
+            // xhr.onreadystatechange = function()
+            // {
+            //     if(xhr.readyState == 4)
+            //     {
+            //         if(xhr.status == 200)
+            //         {
+            //             // process success
+            //             $( "#uploadresult" ).empty().append( 'Uploaded Ok');
+            //         }else{
+            //             // process error
+            //             $( "#uploadresult" ).empty().append( 'Uploaded Failed');
+            //         }
+            //     }
+            // };
+    
+            // start sending
+            // xhr.mySendAsBinary(evt.target.result);
+        };
+    }
   }
   beginUpload(){
     this.uploading = true;
@@ -199,28 +283,99 @@ export class UploadPageComponent implements OnInit {
     //to potentially manually reset the canvas dimensions
   }
   insertFrames(src){
+    const that = this;
+    // this.uploading = true;
+    // setTimeout(() => {
+    //   this.boundingCanvasInit()
+    //   this.getFramesService.getEm()
+    // })
+
     //Retrieve all the files from the FileList object
     this.uploading = true;
     let files = src.target.files; 
+    // const files = this.getFramesService.getEm();
     setTimeout(() => {
       this.boundingCanvasInit()
-      this.frame_container = document.getElementById('frame-container')
+
+      console.log('files length is ', files.length)
+      // const stripContainer = document.getElementsByClassName('framestrip-container')[0]
+      // let frameContainer = document.createElement("div")
+      // frameContainer.classList.add('frame-container')
+      // stripContainer.appendChild(frameContainer);
+      // frameContainer.style.width = '1920px'
+      // this.frame_container = document.getElementById('frame-container')
+      const paneContainer = document.getElementsByClassName('preview-pane-container')[0];
+      let counter = 0;
+      this.frameStrips = [[]]
       for(let i = 0; i < files.length; i++ ){
-        var div = document.createElement("div");   
-        div.style.height = "152px";
-        div.style.width = this.frame_container.clientWidth/files.length + 'px';
-        div.style.border = '1px solid grey';
-        div.classList.add('dynamicFrames')           
-        this.frame_container.appendChild(div);
-      }
-      if (files) {
-        for(let i = 0; i < files.length; i++) {
-          this.insertFrame(files[i]);
+        if(this.frameStrips[counter].length >= 12){
+          this.frameStrips.push([]);
+          counter++
         }
-      } else {
-            alert("Failed to load files"); 
+        let imgSrc = this.getImgSrc(files[i])
+        this.frameStrips[counter].push({
+          imgSrc: imgSrc,
+          id: i
+        });
       }
+      console.log('framestrips are ', this.frameStrips)
+
+      setTimeout(() => {
+       const frameStrips = document.getElementsByClassName('frame-strip') as HTMLCollectionOf<HTMLElement>
+       Array.from(frameStrips).forEach( (strip, index) => {
+         let frames = strip.children as HTMLCollectionOf<HTMLElement>
+          for(let i = 0; i < frames.length; i++){
+            let imgSrc = this.frameStrips[index][i].imgSrc
+            frames[i].style.backgroundImage = 'url('+ imgSrc +')';
+
+            frames[i].addEventListener('mouseover', function(){
+              if(!that.frameSelected){
+                that.selectedImgSrc = imgSrc;
+                that.selectedFrameId = that.frameStrips[index][i].id;
+                paneContainer.innerHTML = '';
+                let paneImage = new Image();
+                paneImage.height = paneContainer.clientHeight;
+                paneImage.width = paneContainer.clientWidth;
+                paneImage.src = imgSrc;
+                paneContainer.appendChild(paneImage);
+              }
+            })
+
+            frames[i].addEventListener('mousedown', function(){
+              that.clearSelectedFrames()
+              that.frameSelected = true;
+              // HTMLElement.set
+              // this.setAttribute("style", "border: 2px solid blue")
+              this.classList.add('selectedFrame')
+              console.log('this is ', this)
+          })
+          }
+        //  Array.from(strip.children).forEach(element => {
+        //    element.style.backgroundColor = 'red'
+        //  });
+       })
+      })
+
+      // if (files) {
+      //   for(let i = 0; i < files.length; i++) {
+      //     this.insertFrame(files[i]);
+      //   }
+      // } else {
+      //       alert("Failed to load files"); 
+      // }
     })
+  }
+  clearSelectedFrames() {
+    const frameStrips = document.getElementsByClassName('frame-strip') as HTMLCollectionOf<HTMLElement>
+       Array.from(frameStrips).forEach( (strip, index) => {
+         let frames = strip.children as HTMLCollectionOf<HTMLElement>
+          for(let i = 0; i < frames.length; i++){
+            frames[i].classList.remove('selectedFrame')
+          }
+       });
+  }
+  getImgSrc (file: any) {
+    return URL.createObjectURL(file);
   }
   insertFrame(file: any){
     const that = this;
@@ -253,6 +408,7 @@ export class UploadPageComponent implements OnInit {
     this.incrementer ++;
   }
   initiateCrop(src){
+    this.ctx.clearRect(0,0,this.boundingCanvas.width,this.boundingCanvas.height);
     this.imgObj = new Image(1920, 1080);
     this.imgObj.src = this.selectedImgSrc;
     const that = this;
@@ -265,7 +421,7 @@ export class UploadPageComponent implements OnInit {
 
     const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
     const ctx = canvas.getContext('2d');
-
+    console.log('this.rect is ', this.rect)
     var newImgSrc = this.getImagePortion(this.imgObj, this.rect.w, this.rect.h, this.rect.startX, this.rect.startY, 1);
     thumbnail.src = newImgSrc;
     ctx.drawImage(thumbnail, 0, 0)
@@ -280,21 +436,47 @@ export class UploadPageComponent implements OnInit {
     bufferCanvas.width = imgObj.width;
     bufferCanvas.height = imgObj.height;
     bufferContext.drawImage(imgObj, 0, 0, 1920, 1078);
+    console.log('ID IS ', this.selectedFrameId)
     if(!this.switch && !this.third){
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas')
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
-      // console.log('canvas is ', canvas)
+
+
+      const coordinates = <HTMLElement> document.getElementById('coord-div1')
+      coordinates.innerHTML = 'id: ' + this.selectedFrameId + 
+      '<br/>' + 
+      'start X: ' + this.rect.startX +  '<br/>' +  
+      ' start Y: ' + this.rect.startY + '<br/>' +  
+      ' end X: ' + this.rect.endX + '<br/>' +  
+      ' end Y: ' + this.rect.endY
+      
       this.switch = true;
     } else if(this.switch && !this.third) {
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas2')
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
+
+      const coordinates = <HTMLElement> document.getElementById('coord-div2')
+      coordinates.innerHTML = 'id: ' + this.selectedFrameId + 
+      '<br/>' + 
+      'start X: ' + this.rect.startX +  '<br/>' +  
+      ' start Y: ' + this.rect.startY + '<br/>' +  
+      ' end X: ' + this.rect.endX + '<br/>' +  
+      ' end Y: ' + this.rect.endY
       this.third = true;
     } else {
       const canvas = <HTMLCanvasElement> document.getElementById('thumbnail-canvas3')
       const ctx = canvas.getContext('2d');
       ctx.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, 0, 0, 300, 300);
+
+      const coordinates = <HTMLElement> document.getElementById('coord-div3')
+      coordinates.innerHTML = 'id: ' + this.selectedFrameId + 
+      '<br/>' + 
+      'start X: ' + this.rect.startX +  '<br/>' +  
+      ' start Y: ' + this.rect.startY + '<br/>' +  
+      ' end X: ' + this.rect.endX + '<br/>' +  
+      ' end Y: ' + this.rect.endY
     }
     tnCanvasContext.drawImage(bufferCanvas, startX,startY,newWidth, newHeight, startX, startY, newWidth, newHeight);
     return tnCanvas.toDataURL();
@@ -319,6 +501,7 @@ export class UploadPageComponent implements OnInit {
   mouseUp(e) {
     this.drag = false;
     this.readyToCrop = true;
+
     if(this.cropping){
       var rect = this.boundingCanvas.getBoundingClientRect();
       this.rect.endX = e.clientX - rect.left;
@@ -326,7 +509,7 @@ export class UploadPageComponent implements OnInit {
       this.readyToCrop = true;
       this.selectMode = false;
       this.selectMode = false;
-
+      this.frameSelected = false;
     }
   }
   draw(){

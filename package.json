@@ -25,10 +25,12 @@
     "@progress/kendo-angular-l10n": "^1.1.0",
     "@progress/kendo-angular-upload": "^4.3.2",
     "@progress/kendo-theme-default": "latest",
+    "aws-sdk": "^2.547.0",
     "cloudinary-core": "^2.6.3",
     "core-js": "^2.5.4",
     "rxjs": "~6.2.0",
     "rxjs-compat": "^6.0.0",
+    "zip-js": "0.0.2",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {

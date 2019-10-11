@@ -109,6 +109,10 @@ button.upload-new{
     height: 100%;
     width: 100%;
 }
+.thumbnail-strip div{
+    height: 300px;
+    width: 300px;
+}
 .frame{
     height: 300px;
     width: 300px;
@@ -145,9 +149,18 @@ label input{
     background: transparent;
     border: none;
 }
-#frame-container{
+.dynamicFrame{
+    border: 1px solid grey;
+    height: 152px;
+    width: 200px;
+    background-size: '100% 100%';
+    background-repeat : 'no-repeat';
+}
+.frame-strip{
+    position: relative;
     height: 150px;
-    width: 100%;
+    width: 1920px;
+    /* width: 100%; */
     border: 1px solid lightgrey;
     display: flex;
 }
@@ -202,4 +215,7 @@ label input{
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+.selectedFrame {
+    border: 2px solid yellow;
 }

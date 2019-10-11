@@ -5,16 +5,16 @@
             <div class="title">Videos Uploaded</div>
             <button  kendoButton class='upload-new'>
               <label for="my-input-element-1" class="input-wrapper">
-                  <!-- <span>Upload New</span> -->
-                  <!-- <input  (change)="insertFrames($event)" type="file" multiple id="my-input-element-1" style="display:none" /> -->
-                  <form [formGroup] = "uploadForm" (ngSubmit)="onSubmit()">      
+                  <span>Upload New</span>
+                  <input  (change)="insertFrames($event)" type="file" multiple id="my-input-element-1" style="display:none" />
+                  <!-- <form [formGroup] = "uploadForm" (ngSubmit)="onSubmit()">      
                     <div>
-                      <input type="file" name="profile" (change)="onFileSelect($event)" />
+                      <input id='fileInput' type="file" name="profile" (change)="onFileSelect($event)" />
                     </div>
                     <div>
                       <button type="submit">Upload</button>
                     </div>
-                  </form>
+                  </form> -->
               </label>
             </button>
           </div>
@@ -61,28 +61,24 @@
                 <canvas (mousedown)="mouseDown($event)" (mouseup)="mouseUp($event)" (mousemove)="mouseMove($event)" id="hd-bounding-canvas" width="1920" height="1080"></canvas>
             </div>
             <div class="thumbnail-strip">
-                <!-- <div class="frame"></div>
-                <div class="frame"></div>
-                <div class="frame"></div> -->
-
-
-                <!-- <div class="frame"></div>
-                <div class="frame"></div> -->
-
-
-                <!-- <canvas id="copy-canvas" width="625" height="625"></canvas> -->
-
-
+                <div id="coord-div1"></div>
+                <div id="coord-div2"></div>
+                <div id="coord-div3"></div>
+            </div>
+            <div class="thumbnail-strip">
                 <canvas id="thumbnail-canvas" width="300" height="300"></canvas>
                 <canvas id="thumbnail-canvas2" width="300" height="300"></canvas>
                 <canvas id="thumbnail-canvas3" width="300" height="300"></canvas>
-
-
             </div>
           </div>
           <div class="framestrip-container">
-            <div class="canvas-container" id='frame-container'></div>
-            <div class="audiostrip"></div>
+            <div *ngFor="let frameStrip of frameStrips" class="canvas-container frame-strip">
+                <div *ngFor='let frame of frameStrip' class="dynamicFrame"></div>
+              <!-- <div *ngFor='let frame of frameStrip' class="dynamicFrame" 
+              [ngStyle]="{'backgroundImage': `url( {'frame'} )`, 'backgroundSize' : '100% 100%', 'backgroundRepeat' : 'no-repeat'}"
+              ></div> -->
+            </div>
+            <!-- <div class="audiostrip"></div> -->
           </div>
           <button (click)="uploading = false" class="cancel-button">Cancel</button>
         </div>

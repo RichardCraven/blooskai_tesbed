@@ -15,15 +15,17 @@ import { delay } from 'rxjs/operators/delay';
 })
 export class AppComponent implements OnInit{
   title = 'blooskai-testbed';
-  SERVER_URL = 'http://18.221.93.226:5500/reset'
+  // SERVER_URL = 'http://18.221.93.226:5500/reset'
+  SERVER_URL = 'http://13.59.126.171:5500/'
+  
 
   constructor(private httpClient: HttpClient){
   }
   ngOnInit(){
-    console.log('resetting in app.component')
-    this.httpClient.get(this.SERVER_URL).subscribe(data => {
-      console.log(data);
-    });
+    // console.log('resetting in app.component')
+    // this.httpClient.get(this.SERVER_URL).subscribe(data => {
+    //   console.log(data);
+    // });
   }
 }
 

@@ -5,12 +5,6 @@ import { DataTransferService } from '../services/data-transfer.service'
 @Component({
   selector: 'media-upload',
   template: `
-  <kendo-upload
-    [saveUrl]="uploadSaveUrl"
-    [removeUrl]="uploadRemoveUrl"
-    (select)="onSelect($event)">
-    <kendo-upload-messages select="Upload media"></kendo-upload-messages>
-  </kendo-upload>
   `
 })
 export class UploadComponent implements OnInit{
