@@ -3,18 +3,25 @@
         <div *ngIf="!uploading" class="card uploads-page-card">
           <div class="header">
             <div class="title">Videos Uploaded</div>
+            <div class="progress-container">
+              <div id='progressBar'></div>
+            </div>
             <button  kendoButton class='upload-new'>
               <label for="my-input-element-1" class="input-wrapper">
                   <span>Upload New</span>
-                  <input  (change)="insertFrames($event)" type="file" multiple id="my-input-element-1" style="display:none" />
-                  <!-- <form [formGroup] = "uploadForm" (ngSubmit)="onSubmit()">      
+                  <!-- <input  (change)="insertFrames($event)" type="file" multiple id="my-input-element-1" style="display:none" /> -->
+                  <!-- <input  (change)="insertFrames($event)" type="file" multiple id="my-input-element-1" style="display:none" /> -->
+
+
+                  <form [formGroup] = "uploadForm" (ngSubmit)="onSubmit()">      
                     <div>
                       <input id='fileInput' type="file" name="profile" (change)="onFileSelect($event)" />
                     </div>
                     <div>
                       <button type="submit">Upload</button>
                     </div>
-                  </form> -->
+                  </form>
+
               </label>
             </button>
           </div>
@@ -48,9 +55,9 @@
           <div class="progress-percentage-container">
             <p id="progress"></p>
           </div>
-          <div class="progress-container">
+          <!-- <div class="progress-container">
             <div id='progressBar'></div>
-          </div>
+          </div> -->
           <div class="res-container">
             <button (click)="resolution1080 = true; setBoundingCanvasDimensions(1080)">1080</button>
             <button (click)="resolution1080 = false; setBoundingCanvasDimensions(720)">720</button>

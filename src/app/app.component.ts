@@ -16,16 +16,37 @@ import { delay } from 'rxjs/operators/delay';
 export class AppComponent implements OnInit{
   title = 'blooskai-testbed';
   // SERVER_URL = 'http://18.221.93.226:5500/reset'
-  SERVER_URL = 'http://13.59.126.171:5500/'
+  SERVER_URL = 'http://3.15.139.228:5500'
   
 
   constructor(private httpClient: HttpClient){
   }
   ngOnInit(){
     // console.log('resetting in app.component')
-    // this.httpClient.get(this.SERVER_URL).subscribe(data => {
-    //   console.log(data);
-    // });
+    this.httpClient.get(this.SERVER_URL + '/reset').subscribe(data => {
+      console.log(data);
+    });
+    // var counter = 0;
+    // var t; 
+  
+    // function color() { 
+    //   counter++
+    //   console.log('yo. 1', counter)
+    //   console.log('t is ', t)
+    //   if(counter > 15){
+    //     stop();
+    //   }
+    // } 
+
+    // function fun() { 
+    //     t = setInterval(color, 3000); 
+
+    // } 
+
+    // function stop() { 
+    //     clearInterval(t); 
+    // } 
+    // fun()
   }
 }
 

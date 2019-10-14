@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-// import { GetFramesService } from '../services/get-frames.service';
+import { GetFramesService } from '../services/get-frames.service';
 
 interface ApiUploadResult {
   url: string;
@@ -29,11 +29,13 @@ export class UploadPageComponent implements OnInit {
   frame_container: any;
   frameStrips = [];
 
+  insertFramesSwitch = false;
 
   thumbnailCounter = 0;
 
   // SERVER_URL = 'http://18.221.93.226:5500/train'
-  SERVER_URL = 'http://13.59.126.171:5500/train'
+  // SERVER_URL = 'http://13.59.126.171:5500/train'
+  SERVER_URL = 'http://3.15.139.228:5500'
 
   uploadForm: FormGroup; 
 
@@ -93,10 +95,20 @@ export class UploadPageComponent implements OnInit {
     w : 0
   };
 
-  constructor(private formBuilder: FormBuilder, private httpClient: HttpClient) { }
+  constructor(private formBuilder: FormBuilder, private httpClient: HttpClient, private getFramesService: GetFramesService) { }
 
   ngOnInit() {
-    console.log('upload page init')
+    this.getFramesService.getFrames().subscribe(res => {
+      this.insertFrames(res);
+    });
+
+
+    this.httpClient.get(this.SERVER_URL).subscribe(data => {
+      console.log('get response is ', data);
+    });
+
+
+
     this.uploadForm = this.formBuilder.group({
       profile: ['']
     });
@@ -174,97 +186,24 @@ export class UploadPageComponent implements OnInit {
     const formData = new FormData();
     formData.append('file', this.uploadForm.get('profile').value);
     const file = this.uploadForm.get('profile').value;
-    this.httpClient.post<any>(this.SERVER_URL, file).subscribe(
-      (res) => console.log('res is ', res),
+    console.log('posting file: ', file)
+    this.httpClient.post<any>(this.SERVER_URL + '/train', formData).subscribe(
+      (res) => {
+        console.log('SUCCESS! res is ', res)
+        this.getFramesService.getEm()
+        // this.insertFrames();
+    },
       (err) => console.log('error is ', err)
     );
-    return
-    const that = this;
-    upload();
-    function upload() {
-      // $( "#progress" ).empty();
-      // $( "#uploadresult" ).empty();
-      
-      // take the file from the input
-      // var file = document.getElementById('fileInput').files[0];
-      // console.log('file is ', file)
-      console.log('file is ', file)
-
-        var reader = new FileReader();
-        reader.readAsBinaryString(file); // alternatively you can use readAsDataURL
-        reader.onloadend  = function(evt)
-        {
-            
-            // create XHR instance
-            let xhr = new XMLHttpRequest();
-    
-            // send the file through POST
-            xhr.open("POST", that.SERVER_URL);
-            // xhr.setRequestHeader('X-Filename', file.name);
-
-            xhr.onload = function (oEvent) {
-              // Uploaded.
-              console.log('loaded')
-            };
-            
-            // var blob = new Blob(['test123'], {type: 'text/plain'});
-            
-            xhr.onprogress = function (e) {
-              console.log('$$:: ', e.loaded, ' / ', e.total)
-            };
-            
-            xhr.send(file);
-
-            console.log('this: ', this, 'evt is ', evt)
-
-            // make sure we have the sendAsBinary method on all browsers
-            // XMLHttpRequest.prototype.mySendAsBinary = function(text){
-            //     var data = new ArrayBuffer(text.length);
-            //     var ui8a = new Uint8Array(data, 0);
-            //     for (var i = 0; i < text.length; i++) ui8a[i] = (text.charCodeAt(i) & 0xff);
-    
-            //     if(typeof window.Blob == "function")
-            //     {
-            //         var blob = new Blob([data]);
-            //     }else{
-            //         var bb = new (window.MozBlobBuilder || window.WebKitBlobBuilder || window.BlobBuilder)();
-            //         bb.append(data);
-            //         var blob = bb.getBlob();
-            //     }
-    
-            //     this.send(blob);
-            // }
-    
-            
-    
-            // state change observer - we need to know when and if the file was successfully uploaded
-            // xhr.onreadystatechange = function()
-            // {
-            //     if(xhr.readyState == 4)
-            //     {
-            //         if(xhr.status == 200)
-            //         {
-            //             // process success
-            //             $( "#uploadresult" ).empty().append( 'Uploaded Ok');
-            //         }else{
-            //             // process error
-            //             $( "#uploadresult" ).empty().append( 'Uploaded Failed');
-            //         }
-            //     }
-            // };
-    
-            // start sending
-            // xhr.mySendAsBinary(evt.target.result);
-        };
-    }
   }
-  beginUpload(){
-    this.uploading = true;
-    const that = this;
-    setTimeout(function(){
-      that.boundingCanvasInit();
-    })
-  }
+  // beginUpload(){
+  //   this.uploading = true;
+  //   const that = this;
+  //   setTimeout(function(){
+  //     that.boundingCanvasInit();
+  //     that.insertFrames();
+  //   })
+  // }
   boundingCanvasInit(){
 
     this.boundingCanvas =  document.getElementById('hd-bounding-canvas') as HTMLCanvasElement;
@@ -280,39 +219,32 @@ export class UploadPageComponent implements OnInit {
       height: 1080,
       width: 1920
     }
-    //to potentially manually reset the canvas dimensions
   }
-  insertFrames(src){
-    const that = this;
-    // this.uploading = true;
-    // setTimeout(() => {
-    //   this.boundingCanvasInit()
-    //   this.getFramesService.getEm()
-    // })
+  insertFrames (filesArr) {
+    console.log('in insertFrames')
 
+    // if(this.insertFramesSwitch) return
+    // this.insertFramesSwitch = true;
+    // console.log('filesArr is ', filesArr)
+    const that = this;
     //Retrieve all the files from the FileList object
     this.uploading = true;
-    let files = src.target.files; 
-    // const files = this.getFramesService.getEm();
+    // let files = src.target.files; 
+    let files = filesArr
+
     setTimeout(() => {
       this.boundingCanvasInit()
-
-      console.log('files length is ', files.length)
-      // const stripContainer = document.getElementsByClassName('framestrip-container')[0]
-      // let frameContainer = document.createElement("div")
-      // frameContainer.classList.add('frame-container')
-      // stripContainer.appendChild(frameContainer);
-      // frameContainer.style.width = '1920px'
-      // this.frame_container = document.getElementById('frame-container')
       const paneContainer = document.getElementsByClassName('preview-pane-container')[0];
       let counter = 0;
       this.frameStrips = [[]]
-      for(let i = 0; i < files.length; i++ ){
+      // for(let i = 0; i < filesArr.length; i++ ){
+      for(let i = 0; i < 10; i++ ){
         if(this.frameStrips[counter].length >= 12){
           this.frameStrips.push([]);
           counter++
         }
-        let imgSrc = this.getImgSrc(files[i])
+        // let imgSrc = this.getImgSrc(filesArr[i])
+        let imgSrc = filesArr[i];
         this.frameStrips[counter].push({
           imgSrc: imgSrc,
           id: i
@@ -320,49 +252,89 @@ export class UploadPageComponent implements OnInit {
       }
       console.log('framestrips are ', this.frameStrips)
 
-      setTimeout(() => {
+      // setTimeout(() => {
        const frameStrips = document.getElementsByClassName('frame-strip') as HTMLCollectionOf<HTMLElement>
-       Array.from(frameStrips).forEach( (strip, index) => {
-         let frames = strip.children as HTMLCollectionOf<HTMLElement>
-          for(let i = 0; i < frames.length; i++){
-            let imgSrc = this.frameStrips[index][i].imgSrc
-            frames[i].style.backgroundImage = 'url('+ imgSrc +')';
+       console.log('ifrog: ', frameStrips)
+        // let newFrames = frameStrips[0].children as HTMLCollectionOf<HTMLElement>
+        // console.log('newFrames: ' , newFrames);
 
-            frames[i].addEventListener('mouseover', function(){
-              if(!that.frameSelected){
-                that.selectedImgSrc = imgSrc;
-                that.selectedFrameId = that.frameStrips[index][i].id;
-                paneContainer.innerHTML = '';
-                let paneImage = new Image();
-                paneImage.height = paneContainer.clientHeight;
-                paneImage.width = paneContainer.clientWidth;
-                paneImage.src = imgSrc;
-                paneContainer.appendChild(paneImage);
-              }
-            })
+        // document.getElementsByClassName('dynamicFrame')
 
-            frames[i].addEventListener('mousedown', function(){
-              that.clearSelectedFrames()
-              that.frameSelected = true;
-              // HTMLElement.set
-              // this.setAttribute("style", "border: 2px solid blue")
-              this.classList.add('selectedFrame')
-              console.log('this is ', this)
-          })
-          }
-        //  Array.from(strip.children).forEach(element => {
-        //    element.style.backgroundColor = 'red'
-        //  });
-       })
-      })
+        Array.prototype.forEach.call(frameStrips[0].children, function(element) {
+          // element.style.display = 'none';
+          console.log('element is ', element)
+          element.style.backgroundColor = 'blue';
+        });
+        
+      return
+        // newFrames.array.forEach(element => {
+          
+        // });
 
-      // if (files) {
-      //   for(let i = 0; i < files.length; i++) {
-      //     this.insertFrame(files[i]);
-      //   }
-      // } else {
-      //       alert("Failed to load files"); 
-      // }
+      //  Array.from(frameStrips).forEach( (strip, index) => {
+
+
+        // for(let i = 0; i < frames.length; i++){
+          
+          const frames = document.getElementsByClassName('dynamicFrame') as HTMLCollection;
+           console.log('nowww frames are ', frames)
+          //  console.log(' frame 3 is ', frames[2])
+          //  var list = document.getElementsByClassName("events");
+          //   for (let item of list) {
+          //       console.log(item.id);
+          //   }
+          //  for(let i = 0; i < 10; i++){ 
+            for (let i = 0; i < frames.length; i++) {
+              console.log('i is ', i);
+              
+              let el = frames.item(i) as HTMLElement;
+              el.style.backgroundSize = '100% 100%';
+              el.style.backgroundColor = 'red';
+
+              // el.addEventListener('mouseover', function(){
+              //   if(!that.frameSelected){
+              //     that.selectedImgSrc = imgSrc;
+              //     that.selectedFrameId = that.frameStrips[0][i].id;
+              //     paneContainer.innerHTML = '';
+              //     let paneImage = new Image();
+              //     paneImage.height = paneContainer.clientHeight;
+              //     paneImage.width = paneContainer.clientWidth;
+              //     paneImage.src = imgSrc;
+              //     paneContainer.appendChild(paneImage);
+              //   }
+              // })
+
+              el.addEventListener('mousedown', function(){
+                that.clearSelectedFrames()
+                that.frameSelected = true;
+                this.classList.add('selectedFrame')
+              })
+            }
+              // console.log(i)
+              // let imgSrc = this.frameStrips[0][i].imgSrc;
+              // console.log('frame is ', frames[i])
+              
+              // let el = frames[i] as HTMLElement
+              // el.style.backgroundSize = '100% 100%';
+              // el.style.backgroundColor = 'red';
+              // frames[i].style.backgroundImage = 'url('+ imgSrc +')';
+
+            // el.addEventListener('mouseover', function(){
+            //   if(!that.frameSelected){
+            //     that.selectedImgSrc = imgSrc;
+            //     that.selectedFrameId = that.frameStrips[0][i].id;
+            //     paneContainer.innerHTML = '';
+            //     let paneImage = new Image();
+            //     paneImage.height = paneContainer.clientHeight;
+            //     paneImage.width = paneContainer.clientWidth;
+            //     paneImage.src = imgSrc;
+            //     paneContainer.appendChild(paneImage);
+            //   }
+            // })
+
+            
+          
+      //  })
     })
   }
   clearSelectedFrames() {
@@ -483,13 +455,15 @@ export class UploadPageComponent implements OnInit {
    }
 
   mouseMove(e) {
-    var rect = this.boundingCanvas.getBoundingClientRect();
-    if (this.drag) {
-      this.rect.w = (e.clientX - rect.left) - this.rect.startX;
-      this.rect.h = (e.clientY - rect.top) - this.rect.startY ;
-      this.ctx.clearRect(0,0,this.boundingCanvas.width,this.boundingCanvas.height);
-      this.draw();
-    }
+    // if(){
+      if (this.drag) {
+        var rect = this.boundingCanvas.getBoundingClientRect();
+        this.rect.w = (e.clientX - rect.left) - this.rect.startX;
+        this.rect.h = (e.clientY - rect.top) - this.rect.startY ;
+        this.ctx.clearRect(0,0,this.boundingCanvas.width,this.boundingCanvas.height);
+        this.draw();
+      }
+    // }
   }
   mouseDown(e) {
     var rect = this.boundingCanvas.getBoundingClientRect();
