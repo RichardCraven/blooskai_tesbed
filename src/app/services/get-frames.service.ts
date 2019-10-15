@@ -28,7 +28,7 @@ export class GetFramesService {
     constructor() {
         console.log('constructing service', document.getElementById('progressBar'))
         const that = this;
-
+        this.observeFramesStore()
         this.source$ = of(this.framesStore.length);
         setTimeout(function(){
             that.progressBar = document.getElementById('progressBar');
@@ -38,6 +38,23 @@ export class GetFramesService {
     getFrames(): Observable<any>{
         return this.framesSubject.asObservable()
       }
+    observeFramesStore () {
+        const that = this;
+        Object.defineProperty(this.framesStore, "push", {
+            configurable: true,
+            enumerable: false,
+            writable: true, // Previous values based on Object.getOwnPropertyDescriptor(Array.prototype, "push")
+            value: function (...args)
+            {
+                let result = Array.prototype.push.apply(this, args); // Original push() implementation based on https://github.com/vuejs/vue/blob/f2b476d4f4f685d84b4957e6c805740597945cde/src/core/observer/array.js and https://github.com/vuejs/vue/blob/daed1e73557d57df244ad8d46c9afff7208c9a2d/src/core/util/lang.js
+        
+                console.log(that.framesStore.length)
+                // RaiseMyEvent();
+        
+                return result; // Original push() implementation
+            }
+        });
+    }
     getEm() {
         
         // console.log('bucket is ', this.bucket)
@@ -59,6 +76,9 @@ export class GetFramesService {
                         let s3url = '';
                         that.bucket.getObject({Bucket: 'blooskai', Key: data.Contents[i].Key},function(err,file){
                             s3url = "data:image/jpeg;base64," + that.encode(file.Body)
+
+                            // s3url = that.encode(file.Body);
+
                             // s3url = that.encode(file.Body)
                             frames.push(s3url);
                             // console.log('frames: ', frames)

@@ -222,7 +222,6 @@ export class UploadPageComponent implements OnInit {
   }
   insertFrames (filesArr) {
     console.log('in insertFrames')
-
     // if(this.insertFramesSwitch) return
     // this.insertFramesSwitch = true;
     // console.log('filesArr is ', filesArr)
@@ -231,14 +230,16 @@ export class UploadPageComponent implements OnInit {
     this.uploading = true;
     // let files = src.target.files; 
     let files = filesArr
-
+    
     setTimeout(() => {
+      const audiostrip = document.getElementsByClassName('audiostrip')[0];
+      audiostrip.classList.add('viewable')
       this.boundingCanvasInit()
       const paneContainer = document.getElementsByClassName('preview-pane-container')[0];
       let counter = 0;
       this.frameStrips = [[]]
-      // for(let i = 0; i < filesArr.length; i++ ){
-      for(let i = 0; i < 10; i++ ){
+      for(let i = 0; i < filesArr.length; i++ ){
+      // for(let i = 0; i < 10; i++ ){ 
         if(this.frameStrips[counter].length >= 12){
           this.frameStrips.push([]);
           counter++
@@ -252,20 +253,60 @@ export class UploadPageComponent implements OnInit {
       }
       console.log('framestrips are ', this.frameStrips)
 
-      // setTimeout(() => {
-       const frameStrips = document.getElementsByClassName('frame-strip') as HTMLCollectionOf<HTMLElement>
-       console.log('ifrog: ', frameStrips)
-        // let newFrames = frameStrips[0].children as HTMLCollectionOf<HTMLElement>
-        // console.log('newFrames: ' , newFrames);
+      setTimeout(() => {
+        const frameStrips = document.getElementsByClassName('frame-strip') as HTMLCollectionOf<HTMLElement>
+        Array.from(frameStrips).forEach( (strip, index) => {
+          let frames = strip.children as HTMLCollectionOf<HTMLElement>
+           for(let i = 0; i < frames.length; i++){
+             let imgSrc = this.frameStrips[index][i].imgSrc
+             var img = new Image();
+             img.src = imgSrc;
 
-        // document.getElementsByClassName('dynamicFrame')
+             frames[i].style.backgroundImage = "url('" + img.src + "')"
 
-        Array.prototype.forEach.call(frameStrips[0].children, function(element) {
-          // element.style.display = 'none';
-          console.log('element is ', element)
-          element.style.backgroundColor = 'blue';
-        });
-        
+            //  frames[i].style.backgroundImage = "url('"+ imgSrc +"')";
+
+
+            // frames[i].style.backgroundImage = "url('data:image/png;base64, "+imgSrc + "')";
+             frames[i].style.backgroundSize = '100% 100%';
+             frames[i].style.backgroundRepeat = 'no-repeat';
+            //  frames[i].style.backgroundColor = 'blue'
+ 
+             frames[i].addEventListener('mouseover', function(){
+               if(!that.frameSelected){
+                 that.selectedImgSrc = imgSrc;
+                 that.selectedFrameId = that.frameStrips[index][i].id;
+                 paneContainer.innerHTML = '';
+                 let paneImage = new Image();
+                 paneImage.height = paneContainer.clientHeight;
+                 paneImage.width = paneContainer.clientWidth;
+                 paneImage.src = imgSrc;
+                 paneContainer.appendChild(paneImage);
+               }
+             })
+ 
+             frames[i].addEventListener('mousedown', function(){
+               that.clearSelectedFrames()
+               that.frameSelected = true;
+               // HTMLElement.set
+               // this.setAttribute("style", "border: 2px solid blue")
+               this.classList.add('selectedFrame')
+               console.log('this is ', this)
+           })
+           }
+         //  Array.from(strip.children).forEach(element => {
+         //    element.style.backgroundColor = 'red'
+         //  });
+        })
+       })
+
+
+
+
+
+
+
+
       return
         // newFrames.array.forEach(element => {
           
